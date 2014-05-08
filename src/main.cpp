@@ -5,7 +5,7 @@
 
 #include <eventBuilding/Event.h>
 #include <l1/L1TriggerProcessor.h>
-#include <options/Options.h>
+#include "../options/MyOptions.h"
 
 using namespace na62;
 int main(int argc, char* argv[]) {
