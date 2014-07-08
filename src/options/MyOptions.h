@@ -17,11 +17,6 @@
  * Available options
  */
 
-/*
- * Performance
- */
-#define OPTION_ZMQ_IO_THREADS (char*)"zmqIoThreads"
-
 namespace na62 {
 class MyOptions: public Options {
 public:
