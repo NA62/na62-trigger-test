@@ -4,7 +4,9 @@
 //============================================================================
 
 #include <eventBuilding/Event.h>
+#include <eventBuilding/SourceIDManager.h>
 #include <l1/L1TriggerProcessor.h>
+#include <vector>
 
 #include "options/MyOptions.h"
 
