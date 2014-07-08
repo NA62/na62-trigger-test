@@ -17,5 +17,6 @@ int main(int argc, char* argv[]) {
 
 	Event* e = new Event(0);
 	L1TriggerProcessor t;
+	SourceIDManager::Initialize(SOURCE_ID_LAV, { }, { });
 	return 0;
 }

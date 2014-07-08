@@ -99,7 +99,7 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.679042334.450375591" name="main.cpp" rcbsApplicability="disable" resourcePath="src/main.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.936591697.1720724199">
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.679042334.450375591" name="main.cpp" rcbsApplicability="disable" resourcePath="src/na62-trigger-test.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.936591697.1720724199">
 						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.936591697.1720724199" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.936591697">
 							<option id="gnu.cpp.compiler.option.include.paths.340975979" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 								<listOptionValue builtIn="false" value="&quot;${workspace_loc:/na62-trigger-algorithms}&quot;"/>
