@@ -8,6 +8,8 @@
 #include <l1/L1TriggerProcessor.h>
 #include <vector>
 
+#include <l0/MEP.h>
+
 #include "options/MyOptions.h"
 
 using namespace na62;
@@ -16,6 +18,7 @@ int main(int argc, char* argv[]) {
 	 * Static Class initializations
 	 */
 	MyOptions::Load(argc, argv);
+	l0::MEP* mep = new l0::MEP(nullptr, 0, nullptr);
 
 	Event* e = new Event(0);
 	L1TriggerProcessor t;
