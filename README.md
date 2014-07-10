@@ -1,6 +1,4 @@
 na62-trigger-test
 =================
 
-This C++ project links na62-trigger-algorithms and na62-farm-lib and implements runnable code to test the trigger algorithms.
-
-If you are a member of NA62 and interested in implementing trigger algorithms, please visit the following repository: https://github.com/NA62/na62-trigger-algorithms
+This C++ project is the test framework for the triggers implemented in the na62-trigger-algorithms repository. How to install and use the software is documented at the wiki of this project (see https://github.com/NA62/na62-trigger-test/wiki)
