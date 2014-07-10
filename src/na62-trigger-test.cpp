@@ -24,6 +24,7 @@
 using namespace na62;
 
 typedef struct {
+	std::string binaryFile;
 	int headerSourceID;
 	int headerNumberOfReadOutBoards;
 	int headerNumberOfEvents;
@@ -51,6 +52,7 @@ HeaderData getIntHeaderDataFromFile(boost::filesystem::path filePath) {
 	file.open(filePath.string());
 
 	getline(file, fileLine);
+	headerData.binaryFile = fileLine;
 	getline(file, fileLine);
 	boost::algorithm::split(headerRawData, fileLine, boost::is_any_of(":"));
 
@@ -70,13 +72,11 @@ std::vector<std::pair<int, int>> createSourceIDPairsVectorFromFiles(
 	HeaderData headerData;
 	int pairsCount = 0;
 
-	std::vector<int>::iterator itr = sourceIDs.begin();
-	for (; itr != sourceIDs.end(); itr++) {
-		std::vector<boost::filesystem::path>::iterator itr2 = filePaths.begin();
-		for (; itr2 != filePaths.end(); itr2++) {
-			if (boost::filesystem::is_regular(itr2->string())) {
-				headerData = getIntHeaderDataFromFile(itr2->string());
-				if (*itr == headerData.headerSourceID) {
+	for (int sourceID : sourceIDs) {
+		for (auto path : filePaths) {
+			if (boost::filesystem::is_regular(path.string())) {
+				headerData = getIntHeaderDataFromFile(path);
+				if (sourceID == headerData.headerSourceID) {
 					pairs.insert(pairs.begin() + pairsCount++,
 							std::make_pair(headerData.headerSourceID,
 									headerData.headerNumberOfReadOutBoards));
@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
 	 * Static Class initializations
 	 */
 	MyOptions::Load(argc, argv);
-	l0::MEP* mep = new l0::MEP(nullptr, 0, nullptr);
+
 
 	std::vector<int> sourceIDs = Options::GetIntList(OPTION_ACTIVE_SOURCE_IDS);
 
@@ -104,6 +104,9 @@ int main(int argc, char* argv[]) {
 			createSourceIDPairsVectorFromFiles(sourceIDs, files);
 
 	SourceIDManager::Initialize(SOURCE_ID_LAV, sourceIDPairsVector, { });
+
+
+//	l0::MEP* mep = new l0::MEP(nullptr, 0, nullptr);
 
 //	Event* e = new Event(0);
 //	l0::MEP* mep = new l0::MEP();
