@@ -17,6 +17,8 @@
 #include <utility>
 #include <vector>
 
+#include <l0/MEP.h>
+
 #include "options/MyOptions.h"
 
 using namespace na62;
@@ -91,6 +93,7 @@ int main(int argc, char* argv[]) {
 	 * Static Class initializations
 	 */
 	MyOptions::Load(argc, argv);
+	l0::MEP* mep = new l0::MEP(nullptr, 0, nullptr);
 
 	std::vector<int> sourceIDs = Options::GetIntList(OPTION_ACTIVE_SOURCE_IDS);
 
