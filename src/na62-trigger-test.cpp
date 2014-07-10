@@ -3,22 +3,115 @@
 // Author      : Jonas Kunze (kunze.jonas@gmail.com)
 //============================================================================
 
-#include <eventBuilding/Event.h>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/detail/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
+#include <boost/iterator/iterator_facade.hpp>
 #include <eventBuilding/SourceIDManager.h>
-#include <l1/L1TriggerProcessor.h>
+#include <utils/Utils.h>
+#include <fstream>
+#include <iterator>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "options/MyOptions.h"
 
 using namespace na62;
+
+typedef struct {
+	int headerSourceID;
+	int headerNumberOfReadOutBoards;
+	int headerNumberOfEvents;
+} HeaderData;
+
+std::vector<boost::filesystem::path> getFilePaths(std::string directoryPath) {
+	std::vector<boost::filesystem::path> files;
+
+	boost::filesystem::directory_iterator endIterator, fileIterator =
+			boost::filesystem::directory_iterator(
+					boost::filesystem::path(directoryPath));
+	for (; fileIterator != endIterator; fileIterator++) {
+		files.insert(files.end(), fileIterator->path());
+	}
+
+	return files;
+}
+
+HeaderData getIntHeaderDataFromFile(boost::filesystem::path filePath) {
+	std::ifstream file;
+	std::string fileLine;
+	std::vector<std::string> headerRawData(3);
+	HeaderData headerData;
+
+	file.open(filePath.string());
+
+	getline(file, fileLine);
+	getline(file, fileLine);
+	boost::algorithm::split(headerRawData, fileLine, boost::is_any_of(":"));
+
+	headerData.headerSourceID = Utils::ToUInt(headerRawData[0]);
+	headerData.headerNumberOfReadOutBoards = Utils::ToUInt(headerRawData[1]);
+	headerData.headerNumberOfEvents = Utils::ToUInt(headerRawData[2]);
+
+	file.close();
+
+	return headerData;
+}
+
+std::vector<std::pair<int, int>> createSourceIDPairsVectorFromFiles(
+		std::vector<int> sourceIDs,
+		std::vector<boost::filesystem::path> filePaths) {
+	std::vector<std::pair<int, int>> pairs;
+	HeaderData headerData;
+	int pairsCount = 0;
+
+	std::vector<int>::iterator itr = sourceIDs.begin();
+	for (; itr != sourceIDs.end(); itr++) {
+		std::vector<boost::filesystem::path>::iterator itr2 = filePaths.begin();
+		for (; itr2 != filePaths.end(); itr2++) {
+			if (boost::filesystem::is_regular(itr2->string())) {
+				headerData = getIntHeaderDataFromFile(itr2->string());
+				if (*itr == headerData.headerSourceID) {
+					pairs.insert(pairs.begin() + pairsCount++,
+							std::make_pair(headerData.headerSourceID,
+									headerData.headerNumberOfReadOutBoards));
+				}
+			}
+		}
+	}
+
+	return pairs;
+}
+
 int main(int argc, char* argv[]) {
 	/*
 	 * Static Class initializations
 	 */
 	MyOptions::Load(argc, argv);
 
-	Event* e = new Event(0);
-	L1TriggerProcessor t;
-	SourceIDManager::Initialize(SOURCE_ID_LAV, { }, { });
+	std::vector<int> sourceIDs = Options::GetIntList(OPTION_ACTIVE_SOURCE_IDS);
+
+	std::vector<boost::filesystem::path> files = getFilePaths(
+			Options::GetString(OPTION_RAW_INPUT_DIR));
+
+	std::vector<std::pair<int, int>> sourceIDPairsVector =
+			createSourceIDPairsVectorFromFiles(sourceIDs, files);
+
+	SourceIDManager::Initialize(SOURCE_ID_LAV, sourceIDPairsVector, { });
+
+//	Event* e = new Event(0);
+//	l0::MEP* mep = new l0::MEP();
+//	L1TriggerProcessor t;
+
+//	int i, eventCount = mep->getNumberOfEvents();
+//	for (i = 0; i < eventCount; i++) {
+//		if (e->addL0Event(mep->getEvent(i), 0)) {
+//			t.compute(e);
+//		}
+//	}
+
 	return 0;
 }
