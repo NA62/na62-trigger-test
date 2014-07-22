@@ -19,9 +19,11 @@
 
 #define OPTION_RAW_INPUT_DIR (char*)"rawInputPath"
 #define OPTION_ACTIVE_SOURCE_IDS (char*)"activeSourceIDs"
-#define OPTION_MEP_SIZE (char*)"mepSize"
+
+#define OPTION_MAX_EVENT_NUM (char*)"maxEventNum"
 
 namespace na62 {
+namespace test {
 class MyOptions: public Options {
 public:
 	MyOptions();
@@ -41,14 +43,13 @@ public:
 		(OPTION_ACTIVE_SOURCE_IDS, po::value<std::string>()->required(),
 				"List of Source IDs to be used")
 
-		(OPTION_MEP_SIZE, po::value<std::string>()->required(),
-				"The number of event fragments in the generated MEPs")
-
-				;
+		(OPTION_MAX_EVENT_NUM, po::value<int>()->default_value(1),
+				"Maximum number of events to be processed");
 
 		Options::Initialize(argc, argv, desc);
 	}
 };
+} /* namespace test */
 } /* namespace na62 */
 
 #endif /* MYOPTIONS_H_ */
