@@ -28,8 +28,9 @@ int main(int argc, char* argv[]) {
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
 	OPTION_ACTIVE_SOURCE_IDS);
 
-	std::vector<boost::filesystem::path> headerFiles = FileReader::getHeaderFiles(
-			MyOptions::GetString(OPTION_RAW_INPUT_DIR));
+	std::vector<boost::filesystem::path> headerFiles =
+			FileReader::getHeaderFiles(
+					MyOptions::GetString(OPTION_RAW_INPUT_DIR));
 
 	std::vector<HeaderData> headers = FileReader::getActiveHeaderData(sourceIDs,
 			headerFiles);
@@ -42,13 +43,14 @@ int main(int argc, char* argv[]) {
 								header.numberOfReadOutBoards)));
 	}
 
-	SourceIDManager::Initialize(SOURCE_ID_LAV, sourceIDPairsVector, { });
+	SourceIDManager::Initialize(SOURCE_ID_LAV, sourceIDPairsVector, { }, { });
 
 	test::EventBuilder builder;
 
 	std::vector<l0::MEP*> meps;
 	for (auto header : headers) {
-		std::function<void(l0::MEP_HDR*)> finishedMEPCallback = std::bind(&test::EventBuilder::buildMEP, &builder, std::placeholders::_1);
+		std::function<void(l0::MEP_HDR*)> finishedMEPCallback = std::bind(
+				&test::EventBuilder::buildMEP, &builder, std::placeholders::_1);
 		meps = FileReader::getDataFromFile(header, finishedMEPCallback);
 	}
 
