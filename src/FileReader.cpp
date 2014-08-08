@@ -238,7 +238,7 @@ std::vector<HeaderData> FileReader::getActiveHeaderData(
 		std::vector<boost::filesystem::path> headerFiles) {
 	std::vector<HeaderData> headers;
 
-	for (auto path : headerFiles) {
+	for (auto& path : headerFiles) {
 		if (boost::filesystem::is_regular(path.string())) {
 			HeaderData headerData = readHeaderFile(path);
 			for (int sourceID : sourceIDs) {

@@ -43,10 +43,9 @@ public:
 				eventPool_[fragment->getEventNumber()] = event;
 			}
 		}
-		L1TriggerProcessor t;
 
 		if (event->addL0Event(fragment, 0)) {
-			t.compute(event);
+			L1TriggerProcessor::compute(event);
 		}
 	}
 
