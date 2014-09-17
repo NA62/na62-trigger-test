@@ -21,3 +21,4 @@ data/
 *.out
 *.app
 /Debug
+/gcc4.6
