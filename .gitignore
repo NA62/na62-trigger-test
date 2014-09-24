@@ -20,9 +20,6 @@ data/
 *.exe
 *.out
 *.app
-/Debug
-<<<<<<< HEAD
+/Debug/
 /gcc4.6/
-=======
-/gcc4.6
->>>>>>> ea0176c3c3327305aa398b46978f223b5faf48c9
+/lxplus/
