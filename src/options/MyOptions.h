@@ -11,7 +11,6 @@
 
 #include <options/Options.h>
 #include <string>
-#include <boost/thread.hpp>
 
 /*
  * Available options
