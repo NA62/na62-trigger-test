@@ -42,8 +42,8 @@ public:
 		(OPTION_ACTIVE_SOURCE_IDS, po::value<std::string>()->required(),
 				"List of Source IDs to be used")
 
-		(OPTION_MAX_EVENT_NUM, po::value<int>()->default_value(1),
-				"Maximum number of events to be processed");
+		(OPTION_MAX_EVENT_NUM, po::value<int>()->default_value(0),
+				"Maximum number of events to be processed. If set to 0 all events found will be processed");
 
 		Options::Initialize(argc, argv, desc);
 	}

@@ -94,8 +94,13 @@ HeaderData FileReader::readHeaderFile(boost::filesystem::path filePath) {
 	/*
 	 * Following lines: $eventLengthN:$listOfROBDataLengthsN
 	 */
-	const int eventsToRead = std::min(MyOptions::GetInt(OPTION_MAX_EVENT_NUM),
-			headerData.numberOfEvents);
+	int eventsToRead = headerData.numberOfEvents;
+
+	if (MyOptions::GetInt(OPTION_MAX_EVENT_NUM) != 0) {
+		eventsToRead = std::min(MyOptions::GetInt(OPTION_MAX_EVENT_NUM),
+				headerData.numberOfEvents);
+	}
+
 	for (int i = 0; i != eventsToRead; i++) {
 		SubEventHdr subEvent;
 		getline(file, fileLine);
