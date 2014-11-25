@@ -21,8 +21,10 @@
 #include <cstdlib>
 #include <fstream>
 #include <vector>
+#include <options/Logging.h>
 
 #include "options/MyOptions.h"
+
 
 namespace na62 {
 namespace test {
@@ -80,11 +82,11 @@ HeaderData FileReader::readHeaderFile(boost::filesystem::path filePath) {
 	getline(file, fileLine);
 	boost::algorithm::split(headerRawData, fileLine, boost::is_any_of(":"));
 	if (headerRawData.size() != 3) {
-		std::cerr << "Error after reading header file line: " << fileLine
-				<< std::endl;
-		std::cerr
+		LOG_ERROR << "Error after reading header file line: " << fileLine
+				<< ENDL;
+		LOG_ERROR
 				<< "The second line of a header file must have 3 colon-separated string: $sourceID:$numberOfReadOutBoards:$numberOfEvents"
-				<< std::endl;
+				<< ENDL;
 		exit(1);
 	}
 	headerData.sourceID = Utils::ToUInt(headerRawData[0]);
@@ -147,7 +149,7 @@ std::vector<l0::MEP*> FileReader::getDataFromFile(HeaderData header,
 
 	std::ifstream file(binaryFile, std::ios::in | std::ios::binary);
 	if (!file.is_open()) {
-		std::cerr << "Unable to open file " << header.binaryFile << std::endl;
+		LOG_ERROR << "Unable to open file " << header.binaryFile << ENDL;
 		exit(1);
 	}
 

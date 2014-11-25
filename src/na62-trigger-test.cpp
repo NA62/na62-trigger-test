@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 								header.numberOfReadOutBoards)));
 	}
 
-	SourceIDManager::Initialize(SOURCE_ID_LAV, sourceIDPairsVector, { }, { });
+	SourceIDManager::Initialize(sourceIDs[0], sourceIDPairsVector, { }, { }, -1);
 
 	test::EventBuilder builder;
 

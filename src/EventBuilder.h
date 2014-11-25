@@ -55,7 +55,7 @@ public:
 				(char*) mepHDR);
 
 		for (int i = mep->getNumberOfEvents() - 1; i != -1; i--) {
-			l0::MEPFragment* fragment = mep->getEvent(i);
+			l0::MEPFragment* fragment = mep->getFragment(i);
 			buildEvent(fragment);
 		}
 	}
