@@ -21,8 +21,10 @@
 #include <cstdlib>
 #include <fstream>
 #include <vector>
+#include <options/Logging.h>
 
 #include "options/MyOptions.h"
+
 
 namespace na62 {
 namespace test {
@@ -80,11 +82,11 @@ HeaderData FileReader::readHeaderFile(boost::filesystem::path filePath) {
 	getline(file, fileLine);
 	boost::algorithm::split(headerRawData, fileLine, boost::is_any_of(":"));
 	if (headerRawData.size() != 3) {
-		std::cerr << "Error after reading header file line: " << fileLine
-				<< std::endl;
-		std::cerr
+		LOG_ERROR << "Error after reading header file line: " << fileLine
+				<< ENDL;
+		LOG_ERROR
 				<< "The second line of a header file must have 3 colon-separated string: $sourceID:$numberOfReadOutBoards:$numberOfEvents"
-				<< std::endl;
+				<< ENDL;
 		exit(1);
 	}
 	headerData.sourceID = Utils::ToUInt(headerRawData[0]);
@@ -94,8 +96,13 @@ HeaderData FileReader::readHeaderFile(boost::filesystem::path filePath) {
 	/*
 	 * Following lines: $eventLengthN:$listOfROBDataLengthsN
 	 */
-	const int eventsToRead = std::min(MyOptions::GetInt(OPTION_MAX_EVENT_NUM),
-			headerData.numberOfEvents);
+	int eventsToRead = headerData.numberOfEvents;
+
+	if (MyOptions::GetInt(OPTION_MAX_EVENT_NUM) != 0) {
+		eventsToRead = std::min(MyOptions::GetInt(OPTION_MAX_EVENT_NUM),
+				headerData.numberOfEvents);
+	}
+
 	for (int i = 0; i != eventsToRead; i++) {
 		SubEventHdr subEvent;
 		getline(file, fileLine);
@@ -142,7 +149,7 @@ std::vector<l0::MEP*> FileReader::getDataFromFile(HeaderData header,
 
 	std::ifstream file(binaryFile, std::ios::in | std::ios::binary);
 	if (!file.is_open()) {
-		std::cerr << "Unable to open file " << header.binaryFile << std::endl;
+		LOG_ERROR << "Unable to open file " << header.binaryFile << ENDL;
 		exit(1);
 	}
 
@@ -238,7 +245,7 @@ std::vector<HeaderData> FileReader::getActiveHeaderData(
 		std::vector<boost::filesystem::path> headerFiles) {
 	std::vector<HeaderData> headers;
 
-	for (auto path : headerFiles) {
+	for (auto& path : headerFiles) {
 		if (boost::filesystem::is_regular(path.string())) {
 			HeaderData headerData = readHeaderFile(path);
 			for (int sourceID : sourceIDs) {

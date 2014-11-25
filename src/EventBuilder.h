@@ -43,10 +43,9 @@ public:
 				eventPool_[fragment->getEventNumber()] = event;
 			}
 		}
-		L1TriggerProcessor t;
 
 		if (event->addL0Event(fragment, 0)) {
-			t.compute(event);
+			L1TriggerProcessor::compute(event);
 		}
 	}
 
@@ -56,7 +55,7 @@ public:
 				(char*) mepHDR);
 
 		for (int i = mep->getNumberOfEvents() - 1; i != -1; i--) {
-			l0::MEPFragment* fragment = mep->getEvent(i);
+			l0::MEPFragment* fragment = mep->getFragment(i);
 			buildEvent(fragment);
 		}
 	}
