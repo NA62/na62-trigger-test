@@ -23,3 +23,7 @@ data/
 /Debug/
 /gcc4.6/
 /lxplus/
+
+.externalToolBuilders/
+.settings/
+.build.properties
