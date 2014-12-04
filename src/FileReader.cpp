@@ -111,7 +111,7 @@ HeaderData FileReader::readHeaderFile(boost::filesystem::path filePath) {
 		 * First column: total event length (sum of all sources), timestamp
 		 */
 		std::vector<std::string> eventInfo(2);
-		boost::algorithm::split(eventInfo, eventLine[0], boost::is_any_of(",:"));
+		boost::algorithm::split(eventInfo, eventLine[0], boost::is_any_of(","));
 		subEvent.eventLength = Utils::ToUInt(eventInfo[0]);
 		subEvent.timestamp = Utils::ToUInt(eventInfo[1]);
 
