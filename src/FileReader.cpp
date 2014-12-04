@@ -65,7 +65,7 @@ HeaderData FileReader::readHeaderFile(boost::filesystem::path filePath) {
 	std::ifstream file;
 	std::string fileLine;
 	std::vector<std::string> headerRawData(3);
-	std::vector<std::string> eventLIne(2);
+	std::vector<std::string> eventLine(2);
 	HeaderData headerData;
 
 	file.open(filePath.string());
@@ -106,18 +106,21 @@ HeaderData FileReader::readHeaderFile(boost::filesystem::path filePath) {
 	for (int i = 0; i != eventsToRead; i++) {
 		SubEventHdr subEvent;
 		getline(file, fileLine);
-		boost::algorithm::split(eventLIne, fileLine, boost::is_any_of(":"));
+		boost::algorithm::split(eventLine, fileLine, boost::is_any_of(":"));
 		/*
-		 * First column: total event length (sum of all sources)
+		 * First column: total event length (sum of all sources), timestamp
 		 */
-		subEvent.eventLength = Utils::ToUInt(eventLIne[0]);
+		std::vector<std::string> eventInfo(2);
+		boost::algorithm::split(eventInfo, eventLine[0], boost::is_any_of(",:"));
+		subEvent.eventLength = Utils::ToUInt(eventInfo[0]);
+		subEvent.timestamp = Utils::ToUInt(eventInfo[1]);
 
 		/*
 		 * Second column: list of number of 32bit-words for each ROB event fragment
 		 */
 		std::vector<std::string> fragmentLengths(
 				headerData.numberOfReadOutBoards);
-		boost::algorithm::split(fragmentLengths, eventLIne[1],
+		boost::algorithm::split(fragmentLengths, eventLine[1],
 				boost::is_any_of(","));
 
 		for (std::string& length : fragmentLengths) {
