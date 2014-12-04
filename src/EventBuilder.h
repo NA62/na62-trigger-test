@@ -10,6 +10,7 @@
 
 #include <eventBuilding/Event.h>
 #include <l0/MEP.h>
+#include <l0/Subevent.h>
 #include <l0/MEPFragment.h>
 #include <l1/L1TriggerProcessor.h>
 #include <vector>
@@ -45,6 +46,16 @@ public:
 		}
 
 		if (event->addL0Event(fragment, 0)) {
+			/*
+			 * Set the global event timestamp according to the value of the timestamp subdetector
+			 */
+			l0::MEPFragment* tsFragment = event->getL0SubeventBySourceID(
+					SourceIDManager::TS_SOURCEID_NUM)->getFragment(0);
+			event->setTimestamp(tsFragment->getTimestamp());
+
+			/*
+			 * Run L1 trigger algorithm
+			 */
 			L1TriggerProcessor::compute(event);
 		}
 	}

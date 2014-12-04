@@ -205,7 +205,7 @@ std::vector<l0::MEP*> FileReader::getDataFromFile(HeaderData header,
 
 			fragmentHdr->eventNumberLSB_ = eventNumber;
 			fragmentHdr->lastEventOfBurst_ = 0;
-			fragmentHdr->timestamp_ = 0; //We could get it from the raw data but it's not used anyway
+			fragmentHdr->timestamp_ = subEvent.timestamp;
 
 			/*
 			 * Write the raw data to the MEP
