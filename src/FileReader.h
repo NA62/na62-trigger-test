@@ -24,6 +24,7 @@ namespace test {
 typedef struct {
 	int eventLength; // Number of long words (32 bit) used to store the current event
 	std::vector<int> ROBDataLengths;
+	uint timestamp;
 } SubEventHdr;
 
 typedef struct {

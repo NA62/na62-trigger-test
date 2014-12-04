@@ -28,6 +28,9 @@ int main(int argc, char* argv[]) {
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
 	OPTION_ACTIVE_SOURCE_IDS);
 
+	/*
+	 * Read all header files
+	 */
 	std::vector<boost::filesystem::path> headerFiles =
 			FileReader::getHeaderFiles(
 					MyOptions::GetString(OPTION_RAW_INPUT_DIR));
@@ -35,6 +38,9 @@ int main(int argc, char* argv[]) {
 	std::vector<HeaderData> headers = FileReader::getActiveHeaderData(sourceIDs,
 			headerFiles);
 
+	/*
+	 * Initialize the SourceIDManager with all found sourceIDs
+	 */
 	std::vector<std::pair<int, int>> sourceIDPairsVector;
 	for (HeaderData header : headers) {
 		sourceIDPairsVector.push_back(
@@ -42,8 +48,7 @@ int main(int argc, char* argv[]) {
 						std::make_pair(header.sourceID,
 								header.numberOfReadOutBoards)));
 	}
-
-	SourceIDManager::Initialize(sourceIDs[0], sourceIDPairsVector, { }, { }, -1);
+	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID), sourceIDPairsVector, { }, { }, -1);
 
 	test::EventBuilder builder;
 
