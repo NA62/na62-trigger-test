@@ -12,6 +12,8 @@
 #include <utility>
 #include <vector>
 
+#include <options/TriggerOptions.h>
+
 #include "EventBuilder.h"
 #include "FileReader.h"
 #include "options/MyOptions.h"
@@ -23,7 +25,10 @@ int main(int argc, char* argv[]) {
 	/*
 	 * Static Class initializations
 	 */
+	TriggerOptions::Load(argc, argv);
 	MyOptions::Load(argc, argv);
+
+	std::cout << Options::GetInt(OPTION_TEST)<< "!!!!!!"<<std::endl;
 
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
 	OPTION_ACTIVE_SOURCE_IDS);
