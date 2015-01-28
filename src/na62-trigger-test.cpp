@@ -1,4 +1,3 @@
-
 //============================================================================
 // Name        : NA62 online trigger algorithm test
 // Author      : Jonas Kunze (kunze.jonas@gmail.com)
@@ -23,17 +22,16 @@
 #include "FileReader.h"
 #include "options/MyOptions.h"
 
-
 using namespace na62;
 using namespace na62::test;
 
 bool init_function() {
-    // But, you CAN'T use testing tools here
-    return true;
+	// But, you CAN'T use testing tools here
+	return true;
 }
 
 int main(int argc, char* argv[]) {
- 	boost::unit_test::unit_test_main( &init_function, argc, argv );
+	boost::unit_test::unit_test_main(&init_function, argc, argv);
 	/*
 	 * Static Class initializations
 	 */
@@ -50,20 +48,26 @@ int main(int argc, char* argv[]) {
 			FileReader::getHeaderFiles(
 					MyOptions::GetString(OPTION_RAW_INPUT_DIR));
 
+	std::cout << "Found " << headerFiles.size() << " header files";
+
 	std::vector<HeaderData> headers = FileReader::getActiveHeaderData(sourceIDs,
 			headerFiles);
+	std::cout << "Read " << headers.size() << " data files";
 
 	/*
 	 * Initialize the SourceIDManager with all found sourceIDs
 	 */
 	std::vector<std::pair<int, int>> sourceIDPairsVector;
 	for (HeaderData header : headers) {
+		std::cout << "Reading header file for " << header.binaryFile
+				<< std::endl;
 		sourceIDPairsVector.push_back(
 				std::move(
 						std::make_pair(header.sourceID,
 								header.numberOfReadOutBoards)));
 	}
-	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID), sourceIDPairsVector, { }, { }, -1);
+	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID),
+			sourceIDPairsVector, { }, { }, -1);
 
 	test::EventBuilder builder;
 
