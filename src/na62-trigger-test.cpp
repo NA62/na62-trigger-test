@@ -1,7 +1,11 @@
+
 //============================================================================
 // Name        : NA62 online trigger algorithm test
 // Author      : Jonas Kunze (kunze.jonas@gmail.com)
 //============================================================================
+#define BOOST_TEST_NO_MAIN
+#define BOOST_TEST_ALTERNATIVE_INIT_API
+#include <boost/test/included/unit_test.hpp>
 
 #include <boost/bind/placeholders.hpp>
 #include <boost/filesystem/path.hpp>
@@ -13,22 +17,28 @@
 #include <vector>
 
 #include <options/TriggerOptions.h>
+#include <UnitTests.h>
 
 #include "EventBuilder.h"
 #include "FileReader.h"
 #include "options/MyOptions.h"
 
+
 using namespace na62;
 using namespace na62::test;
 
+bool init_function() {
+    // But, you CAN'T use testing tools here
+    return true;
+}
+
 int main(int argc, char* argv[]) {
+ 	boost::unit_test::unit_test_main( &init_function, argc, argv );
 	/*
 	 * Static Class initializations
 	 */
 	TriggerOptions::Load(argc, argv);
 	MyOptions::Load(argc, argv);
-
-	std::cout << Options::GetInt(OPTION_TEST)<< "!!!!!!"<<std::endl;
 
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
 	OPTION_ACTIVE_SOURCE_IDS);
