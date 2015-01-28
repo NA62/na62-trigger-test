@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 			FileReader::getHeaderFiles(
 					MyOptions::GetString(OPTION_RAW_INPUT_DIR));
 
-	std::cout << "Found " << headerFiles.size() << " header files";
+	std::cout << "Found " << headerFiles.size() << " header files"<< std::endl;
 
 	std::vector<HeaderData> headers = FileReader::getActiveHeaderData(sourceIDs,
 			headerFiles);
