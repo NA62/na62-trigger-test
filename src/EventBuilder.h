@@ -49,7 +49,7 @@ public:
 			/*
 			 * Set the global event timestamp according to the value of the timestamp subdetector
 			 */
-			l0::MEPFragment* tsFragment = event->getL0SubeventBySourceID(
+			l0::MEPFragment* tsFragment = event->getL0SubeventBySourceIDNum(
 					SourceIDManager::TS_SOURCEID_NUM)->getFragment(0);
 			event->setTimestamp(tsFragment->getTimestamp());
 
