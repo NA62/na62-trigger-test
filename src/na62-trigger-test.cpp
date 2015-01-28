@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
 
 	std::vector<HeaderData> headers = FileReader::getActiveHeaderData(sourceIDs,
 			headerFiles);
-	std::cout << "Read " << headers.size() << " data files";
+	std::cout << "Read " << headers.size() << " data files" << std::endl;
 
 	/*
 	 * Initialize the SourceIDManager with all found sourceIDs
