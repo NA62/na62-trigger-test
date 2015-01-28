@@ -2,7 +2,7 @@
  * EventBuilder.h
  *
  *  Created on: Jul 22, 2014
- *      Author: root
+ *      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 
 #ifndef EVENTBUILDER_H_
@@ -61,7 +61,6 @@ public:
 	}
 
 	void buildMEP(l0::MEP_HDR* mepHDR) {
-
 		l0::MEP* mep = new l0::MEP((char*) mepHDR, mepHDR->mepLength,
 				(char*) mepHDR);
 

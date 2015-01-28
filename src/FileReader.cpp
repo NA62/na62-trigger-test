@@ -2,7 +2,7 @@
  * FileReader.cpp
  *
  *  Created on: Jul 22, 2014
- *      Author: root
+ *      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 
 #include "FileReader.h"
