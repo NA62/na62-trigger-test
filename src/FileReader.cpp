@@ -119,9 +119,8 @@ HeaderData FileReader::readHeaderFile(boost::filesystem::path filePath) {
 /**
  * Reads the binary files and copies all events into MEPs
  */
-std::vector<l0::MEP*> FileReader::getDataFromFile(HeaderData header,
+void FileReader::readDataFromFile(HeaderData header,
 		std::function<void(l0::MEP_HDR*)> finishedMEPCallback) {
-	std::vector<l0::MEP*> constructedMEPs;
 
 	/*
 	 * Check if the binary file is an absolute path. If not it's relative to the RAW_INTPUT_DIR path
@@ -203,8 +202,10 @@ std::vector<l0::MEP*> FileReader::getDataFromFile(HeaderData header,
 		eventNumber++;
 	}
 
+	LOG_INFO<< "Found "<< eventNumber << " events in the binary file " << binaryFile << ENDL;
+
 	/*
-	 * Send all MEPs to the callback
+	 * Send all remaining MEPs to the callback
 	 */
 	for (int sourceSubID = 0; sourceSubID != header.numberOfReadOutBoards;
 			sourceSubID++) {
@@ -214,8 +215,6 @@ std::vector<l0::MEP*> FileReader::getDataFromFile(HeaderData header,
 	}
 
 	file.close();
-
-	return constructedMEPs;
 }
 
 /**

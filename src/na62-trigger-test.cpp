@@ -94,11 +94,10 @@ int main(int argc, char* argv[]) {
 
 	test::EventBuilder builder;
 
-	std::vector<l0::MEP*> meps;
 	for (auto& header : headers) {
 		std::function<void(l0::MEP_HDR*)> finishedMEPCallback = std::bind(
 				&test::EventBuilder::buildMEP, &builder, std::placeholders::_1);
-		meps = FileReader::getDataFromFile(header, finishedMEPCallback);
+		FileReader::readDataFromFile(header, finishedMEPCallback);
 	}
 
 	return 0;

@@ -46,16 +46,16 @@ public:
 	static HeaderData readHeaderFile(boost::filesystem::path filePath);
 
 	/**
-	 * Reads the binary files and copies all events into MEPs
+	 * Reads the binary files and copies all events into MEPs. The callback is called for every MEP created
 	 */
-	static std::vector<l0::MEP*> getDataFromFile(HeaderData header, std::function<void(l0::MEP_HDR*)> finishedMEPCallback);
+	static void readDataFromFile(HeaderData header,
+			std::function<void(l0::MEP_HDR*)> finishedMEPCallback);
 
 	/**
 	 * Returns the header data of all activated sourceIDs
 	 */
 	static std::vector<HeaderData> getActiveHeaderData(
-			std::vector<int> sourceIDs,
-			std::vector<std::string> headerFiles);
+			std::vector<int> sourceIDs, std::vector<std::string> headerFiles);
 
 };
 } /* namespace test */
