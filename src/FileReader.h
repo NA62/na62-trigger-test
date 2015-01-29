@@ -43,7 +43,7 @@ public:
 	/**
 	 * Generates a HeaderData object by reading the given file
 	 */
-	static HeaderData readHeaderFile(boost::filesystem::path filePath);
+	static HeaderData readHeaderFile(std::string filePath);
 
 	/**
 	 * Reads the binary files and copies all events into MEPs. The callback is called for every MEP created

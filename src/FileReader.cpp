@@ -43,14 +43,14 @@ FileReader::~FileReader() {
 /**
  * Generates a HeaderData object by reading the given file
  */
-HeaderData FileReader::readHeaderFile(boost::filesystem::path filePath) {
+HeaderData FileReader::readHeaderFile(std::string filePath) {
 	std::ifstream file;
 	std::string fileLine;
 	std::vector<std::string> headerRawData(3);
 	std::vector<std::string> eventLine(2);
 	HeaderData headerData;
 
-	file.open(filePath.string());
+	file.open(filePath);
 
 	/*
 	 * First line: $dataFileName
