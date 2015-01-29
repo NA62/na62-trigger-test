@@ -40,12 +40,6 @@ public:
 	FileReader();
 	virtual ~FileReader();
 
-	/*
-	 * Returns a list of paths to all found header files in the given directory
-	 */
-	static std::vector<boost::filesystem::path> getHeaderFiles(
-			std::string directoryPath);
-
 	/**
 	 * Generates a HeaderData object by reading the given file
 	 */
@@ -61,7 +55,7 @@ public:
 	 */
 	static std::vector<HeaderData> getActiveHeaderData(
 			std::vector<int> sourceIDs,
-			std::vector<boost::filesystem::path> headerFiles);
+			std::vector<std::string> headerFiles);
 
 };
 } /* namespace test */

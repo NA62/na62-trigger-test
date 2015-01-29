@@ -31,7 +31,6 @@ bool init_function() {
 }
 
 int main(int argc, char* argv[]) {
-	boost::unit_test::unit_test_main(&init_function, argc, argv);
 	/*
 	 * Static Class initializations
 	 */
@@ -42,14 +41,38 @@ int main(int argc, char* argv[]) {
 	OPTION_ACTIVE_SOURCE_IDS);
 
 	/*
+	 * Unit tests
+	 */
+	boost::unit_test::unit_test_main(&init_function, argc, argv);
+
+	/*
+	 * Extracting input header files from argument list
+	 */
+	std::vector<std::string> headerFiles;
+	for (int i = 1; i < argc; i++) {
+		if (argv[i][0] != '-') {
+			headerFiles.push_back(std::string(argv[i]));
+		}
+	}
+
+	if (headerFiles.empty()) {
+		std::cerr
+				<< "No input header files provided. Please use something like following:\n\t"
+				<< argv[0] << " files/*.txt" << std::endl;
+		return 1;
+	}
+
+	/*
 	 * Read all header files
 	 */
-	std::vector<boost::filesystem::path> headerFiles =
-			FileReader::getHeaderFiles(
-					MyOptions::GetString(OPTION_RAW_INPUT_DIR));
+	std::cout << "Reading " << headerFiles.size() << " header file: ";
+	for (auto& headerFile : headerFiles) {
+		std::cout << headerFile;
+		if (&headerFile != &*--headerFiles.end())
+			std::cout << ", ";
+	}
 
-	std::cout << "Found " << headerFiles.size() << " header files"<< std::endl;
-
+	std::cout << std::endl;
 	std::vector<HeaderData> headers = FileReader::getActiveHeaderData(sourceIDs,
 			headerFiles);
 	std::cout << "Read " << headers.size() << " data files" << std::endl;
