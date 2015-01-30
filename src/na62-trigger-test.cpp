@@ -14,6 +14,8 @@
 #include <functional>
 #include <utility>
 #include <vector>
+#include <l1/L1TriggerProcessor.h>
+#include <l2/L2TriggerProcessor.h>
 
 #include <options/TriggerOptions.h>
 #include <UnitTests.h>
@@ -41,20 +43,27 @@ int main(int argc, char* argv[]) {
 	TriggerOptions::Load(argc, argv);
 	MyOptions::Load(argc, argv);
 
+	L1TriggerProcessor::initialize(
+			TriggerOptions::GetDouble(OPTION_L1_BYPASS_PROBABILITY),
+			TriggerOptions::GetInt(OPTION_L1_BYPASS_TRIGGER_WORD));
+	L2TriggerProcessor::initialize(
+			TriggerOptions::GetDouble(OPTION_L2_BYPASS_PROBABILITY),
+			TriggerOptions::GetInt(OPTION_L2_BYPASS_TRIGGER_WORD));
+
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
 	OPTION_ACTIVE_SOURCE_IDS);
 
 	/*
 	 * Extracting input header files from argument list
 	 */
-	std::vector<std::string> headerFiles;
+	std::vector<std::string> headerFileExpressions;
 	for (int i = 1; i < argc; i++) {
 		if (argv[i][0] != '-') {
-			headerFiles.push_back(std::string(argv[i]));
+			headerFileExpressions.push_back(std::string(argv[i]));
 		}
 	}
 
-	if (headerFiles.empty()) {
+	if (headerFileExpressions.empty()) {
 		std::cerr
 				<< "No input header files provided. Please use something like following:\n\t"
 				<< argv[0] << " files/*.txt" << std::endl;
@@ -64,17 +73,23 @@ int main(int argc, char* argv[]) {
 	/*
 	 * Read all header files
 	 */
-	std::cout << "Reading " << headerFiles.size() << " header file: ";
-	for (auto& headerFile : headerFiles) {
+	std::cout << "Reading " << headerFileExpressions.size() << " header file: ";
+	for (auto& headerFile : headerFileExpressions) {
 		std::cout << headerFile;
-		if (&headerFile != &*--headerFiles.end())
+		if (&headerFile != &*--headerFileExpressions.end())
 			std::cout << ", ";
 	}
-
 	std::cout << std::endl;
+
 	std::vector<HeaderData> headers = FileReader::getActiveHeaderData(sourceIDs,
-			headerFiles);
-	std::cout << "Read " << headers.size() << " data files" << std::endl;
+			headerFileExpressions);
+
+	if (headers.empty()) {
+		std::cout << "Did not find any header file!" << std::endl;
+		return 0;
+	}
+
+	std::cout << "Found " << headers.size() << " data files" << std::endl;
 
 	/*
 	 * Initialize the SourceIDManager with all found sourceIDs
