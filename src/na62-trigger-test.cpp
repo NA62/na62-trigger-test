@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 			TriggerOptions::GetInt(OPTION_L1_BYPASS_TRIGGER_WORD));
 	L2TriggerProcessor::initialize(
 			TriggerOptions::GetDouble(OPTION_L2_BYPASS_PROBABILITY),
-			TriggerOptions::GetInt(OPTION_L2_BYPASS_TRIGGER_WORD));
+			TriggerOptions::GetInt(OPTION_L2_BYPASS_TRIGGER_WORD), TriggerOptions::GetInt(OPTION_L1_BYPASS_TRIGGER_WORD));
 
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
 	OPTION_ACTIVE_SOURCE_IDS);
@@ -89,14 +89,14 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	std::cout << "Found " << headers.size() << " data files" << std::endl;
+	std::cout << "Found " << headers.size() << " header files:" << std::endl;
 
 	/*
 	 * Initialize the SourceIDManager with all found sourceIDs
 	 */
 	std::vector<std::pair<int, int>> sourceIDPairsVector;
 	for (HeaderData header : headers) {
-		std::cout << "Reading header file for " << header.binaryFile
+		std::cout << "Found header file for " << header.binaryFile
 				<< std::endl;
 		sourceIDPairsVector.push_back(
 				std::move(
