@@ -4,7 +4,7 @@
 //============================================================================
 #define BOOST_TEST_NO_MAIN
 #define BOOST_TEST_ALTERNATIVE_INIT_API
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <boost/bind/placeholders.hpp>
 #include <boost/filesystem/path.hpp>
@@ -26,11 +26,15 @@ using namespace na62;
 using namespace na62::test;
 
 bool init_function() {
-	// But, you CAN'T use testing tools here
 	return true;
 }
 
 int main(int argc, char* argv[]) {
+	/*
+	 * Unit tests
+	 */
+	boost::unit_test::unit_test_main(&init_function, argc, argv);
+
 	/*
 	 * Static Class initializations
 	 */
@@ -39,11 +43,6 @@ int main(int argc, char* argv[]) {
 
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
 	OPTION_ACTIVE_SOURCE_IDS);
-
-	/*
-	 * Unit tests
-	 */
-	boost::unit_test::unit_test_main(&init_function, argc, argv);
 
 	/*
 	 * Extracting input header files from argument list
