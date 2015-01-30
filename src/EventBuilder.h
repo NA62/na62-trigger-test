@@ -64,7 +64,7 @@ public:
 		l0::MEP* mep = new l0::MEP((char*) mepHDR, mepHDR->mepLength,
 				(char*) mepHDR);
 
-		for (int i = mep->getNumberOfEvents() - 1; i != -1; i--) {
+		for (int i = 0; i != mep->getNumberOfEvents(); i++) {
 			l0::MEPFragment* fragment = mep->getFragment(i);
 			buildEvent(fragment);
 		}
