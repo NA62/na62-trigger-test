@@ -16,6 +16,7 @@
 #include <vector>
 #include <l1/L1TriggerProcessor.h>
 #include <l2/L2TriggerProcessor.h>
+#include <eventBuilding/EventSerializer.h>
 
 #include <options/TriggerOptions.h>
 #include <UnitTests.h>
@@ -42,6 +43,9 @@ int main(int argc, char* argv[]) {
 	 */
 	TriggerOptions::Load(argc, argv);
 	MyOptions::Load(argc, argv);
+
+
+	EventSerializer::initialize();
 
 	L1TriggerProcessor::initialize(
 			TriggerOptions::GetDouble(OPTION_L1_BYPASS_PROBABILITY),
