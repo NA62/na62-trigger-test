@@ -34,14 +34,14 @@ EventBuilder::EventBuilder() :
 		std::string outputDir = Options::GetString(OPTION_OUTPUT_DIR);
 
 		DataDumper::generateDirIfNotExists(outputDir);
-		std::string fileName = DataDumper::generateFreeFilePath(fileName,
+		std::string filePath = DataDumper::generateFreeFilePath(fileName,
 				outputDir);
 
-		outputFile_->open(fileName,
+		outputFile_->open(filePath,
 				std::ios::out | std::ios::trunc | std::ios::binary);
 
 		if (!outputFile_->good()) {
-			LOG_ERROR<< "Unable to write to file " << fileName;
+			LOG_ERROR<< "Unable to write to file " << filePath;
 			exit(1);
 		}
 	}
