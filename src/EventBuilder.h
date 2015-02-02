@@ -2,7 +2,7 @@
  * EventBuilder.h
  *
  *  Created on: Jul 22, 2014
- *      Author: root
+ *      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 
 #ifndef EVENTBUILDER_H_
@@ -49,7 +49,7 @@ public:
 			/*
 			 * Set the global event timestamp according to the value of the timestamp subdetector
 			 */
-			l0::MEPFragment* tsFragment = event->getL0SubeventBySourceID(
+			l0::MEPFragment* tsFragment = event->getL0SubeventBySourceIDNum(
 					SourceIDManager::TS_SOURCEID_NUM)->getFragment(0);
 			event->setTimestamp(tsFragment->getTimestamp());
 
@@ -61,11 +61,10 @@ public:
 	}
 
 	void buildMEP(l0::MEP_HDR* mepHDR) {
-
 		l0::MEP* mep = new l0::MEP((char*) mepHDR, mepHDR->mepLength,
 				(char*) mepHDR);
 
-		for (int i = mep->getNumberOfEvents() - 1; i != -1; i--) {
+		for (int i = 0; i != mep->getNumberOfEvents(); i++) {
 			l0::MEPFragment* fragment = mep->getFragment(i);
 			buildEvent(fragment);
 		}

@@ -2,7 +2,7 @@
  * FileReader.cpp
  *
  *  Created on: Jul 22, 2014
- *      Author: root
+ *      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 
 #include "FileReader.h"
@@ -11,6 +11,9 @@
 #include <boost/algorithm/string/detail/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/regex.hpp>
+#include <boost/regex.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/iterator/iterator_facade.hpp>
@@ -25,7 +28,6 @@
 
 #include "options/MyOptions.h"
 
-
 namespace na62 {
 namespace test {
 
@@ -38,37 +40,17 @@ FileReader::~FileReader() {
 	// TODO Auto-generated destructor stub
 }
 
-/*
- * Returns a list of paths to all found header files in the given directory
- */
-std::vector<boost::filesystem::path> FileReader::getHeaderFiles(
-		std::string directoryPath) {
-	std::vector<boost::filesystem::path> files;
-
-	boost::filesystem::directory_iterator endIterator, fileIterator =
-			boost::filesystem::directory_iterator(
-					boost::filesystem::path(directoryPath));
-	for (; fileIterator != endIterator; fileIterator++) {
-		if (boost::algorithm::ends_with(fileIterator->path().string(),
-				".txt")) {
-			files.push_back(fileIterator->path());
-		}
-	}
-
-	return files;
-}
-
 /**
  * Generates a HeaderData object by reading the given file
  */
-HeaderData FileReader::readHeaderFile(boost::filesystem::path filePath) {
+HeaderData FileReader::readHeaderFile(std::string filePath) {
 	std::ifstream file;
 	std::string fileLine;
 	std::vector<std::string> headerRawData(3);
 	std::vector<std::string> eventLine(2);
 	HeaderData headerData;
 
-	file.open(filePath.string());
+	file.open(filePath);
 
 	/*
 	 * First line: $dataFileName
@@ -82,11 +64,11 @@ HeaderData FileReader::readHeaderFile(boost::filesystem::path filePath) {
 	getline(file, fileLine);
 	boost::algorithm::split(headerRawData, fileLine, boost::is_any_of(":"));
 	if (headerRawData.size() != 3) {
-		LOG_ERROR << "Error after reading header file line: " << fileLine
-				<< ENDL;
+		LOG_ERROR<< "Error after reading header file line: " << fileLine
+		<< ENDL;
 		LOG_ERROR
-				<< "The second line of a header file must have 3 colon-separated string: $sourceID:$numberOfReadOutBoards:$numberOfEvents"
-				<< ENDL;
+		<< "The second line of a header file must have 3 colon-separated strings: $sourceID:$numberOfReadOutBoards:$numberOfEvents"
+		<< ENDL;
 		exit(1);
 	}
 	headerData.sourceID = Utils::ToUInt(headerRawData[0]);
@@ -111,7 +93,7 @@ HeaderData FileReader::readHeaderFile(boost::filesystem::path filePath) {
 		 * First column: total event length (sum of all sources), timestamp
 		 */
 		std::vector<std::string> eventInfo(2);
-		boost::algorithm::split(eventInfo, eventLine[0], boost::is_any_of(",:"));
+		boost::algorithm::split(eventInfo, eventLine[0], boost::is_any_of(","));
 		subEvent.eventLength = Utils::ToUInt(eventInfo[0]);
 		subEvent.timestamp = Utils::ToUInt(eventInfo[1]);
 
@@ -137,22 +119,17 @@ HeaderData FileReader::readHeaderFile(boost::filesystem::path filePath) {
 /**
  * Reads the binary files and copies all events into MEPs
  */
-std::vector<l0::MEP*> FileReader::getDataFromFile(HeaderData header,
+void FileReader::readDataFromFile(HeaderData header,
 		std::function<void(l0::MEP_HDR*)> finishedMEPCallback) {
-	std::vector<l0::MEP*> constructedMEPs;
 
 	/*
 	 * Check if the binary file is an absolute path. If not it's relative to the RAW_INTPUT_DIR path
 	 */
 	std::string binaryFile = header.binaryFile;
-	if (binaryFile.substr(0, 1) != "/") {
-		binaryFile = Options::GetString(OPTION_RAW_INPUT_DIR) + "/"
-				+ binaryFile;
-	}
 
 	std::ifstream file(binaryFile, std::ios::in | std::ios::binary);
 	if (!file.is_open()) {
-		LOG_ERROR << "Unable to open file " << header.binaryFile << ENDL;
+		LOG_ERROR<< "Unable to open file " << header.binaryFile << ENDL;
 		exit(1);
 	}
 
@@ -225,8 +202,10 @@ std::vector<l0::MEP*> FileReader::getDataFromFile(HeaderData header,
 		eventNumber++;
 	}
 
+	LOG_INFO<< "Found "<< eventNumber << " events in the binary file " << binaryFile << ENDL;
+
 	/*
-	 * Send all MEPs to the callback
+	 * Send all remaining MEPs to the callback
 	 */
 	for (int sourceSubID = 0; sourceSubID != header.numberOfReadOutBoards;
 			sourceSubID++) {
@@ -236,20 +215,17 @@ std::vector<l0::MEP*> FileReader::getDataFromFile(HeaderData header,
 	}
 
 	file.close();
-
-	return constructedMEPs;
 }
 
 /**
  * Returns the header data of all activated sourceIDs
  */
 std::vector<HeaderData> FileReader::getActiveHeaderData(
-		std::vector<int> sourceIDs,
-		std::vector<boost::filesystem::path> headerFiles) {
+		std::vector<int> sourceIDs, std::vector<std::string> headerFiles) {
 	std::vector<HeaderData> headers;
 
 	for (auto& path : headerFiles) {
-		if (boost::filesystem::is_regular(path.string())) {
+		if (boost::filesystem::is_regular(path)) {
 			HeaderData headerData = readHeaderFile(path);
 			for (int sourceID : sourceIDs) {
 				if (sourceID == headerData.sourceID) {

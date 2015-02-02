@@ -2,7 +2,7 @@
  * FileReader.h
  *
  *  Created on: Jul 22, 2014
- *      Author: root
+ *  	Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 
 #ifndef FILEREADER_H_
@@ -40,28 +40,22 @@ public:
 	FileReader();
 	virtual ~FileReader();
 
-	/*
-	 * Returns a list of paths to all found header files in the given directory
-	 */
-	static std::vector<boost::filesystem::path> getHeaderFiles(
-			std::string directoryPath);
-
 	/**
 	 * Generates a HeaderData object by reading the given file
 	 */
-	static HeaderData readHeaderFile(boost::filesystem::path filePath);
+	static HeaderData readHeaderFile(std::string filePath);
 
 	/**
-	 * Reads the binary files and copies all events into MEPs
+	 * Reads the binary files and copies all events into MEPs. The callback is called for every MEP created
 	 */
-	static std::vector<l0::MEP*> getDataFromFile(HeaderData header, std::function<void(l0::MEP_HDR*)> finishedMEPCallback);
+	static void readDataFromFile(HeaderData header,
+			std::function<void(l0::MEP_HDR*)> finishedMEPCallback);
 
 	/**
 	 * Returns the header data of all activated sourceIDs
 	 */
 	static std::vector<HeaderData> getActiveHeaderData(
-			std::vector<int> sourceIDs,
-			std::vector<boost::filesystem::path> headerFiles);
+			std::vector<int> sourceIDs, std::vector<std::string> headerFiles);
 
 };
 } /* namespace test */
