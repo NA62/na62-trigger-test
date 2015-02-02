@@ -52,9 +52,6 @@ public:
 		(OPTION_OUTPUT_DIR, po::value<std::string>()->required(),
 				"Absolute or relative path to the directory to which the output files should be stored.")
 
-		(OPTION_OUTPUT_DIR, po::value<std::string>()->required(),
-				"Absolute or relative path to the directory to which the output files should be stored.")
-
 		(OPTION_RAW_FILE_NAME, po::value<std::string>()->default_value(""),
 				"If set non empty, a file with this name will be written to the set output directory containing all events passed through the L1/L2 chain in the same format as the pc-farm generates (burst file).")
 
