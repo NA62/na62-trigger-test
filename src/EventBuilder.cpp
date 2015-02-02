@@ -36,7 +36,7 @@ EventBuilder::EventBuilder() :
 		DataDumper::generateDirIfNotExists(outputDir);
 		std::string filePath = DataDumper::generateFreeFilePath(fileName,
 				outputDir);
-
+		outputFile_ = new std::ofstream;
 		outputFile_->open(filePath,
 				std::ios::out | std::ios::trunc | std::ios::binary);
 

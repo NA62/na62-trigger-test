@@ -44,7 +44,6 @@ int main(int argc, char* argv[]) {
 	TriggerOptions::Load(argc, argv);
 	MyOptions::Load(argc, argv);
 
-
 	EventSerializer::initialize();
 
 	L1TriggerProcessor::initialize(
@@ -52,7 +51,8 @@ int main(int argc, char* argv[]) {
 			TriggerOptions::GetInt(OPTION_L1_BYPASS_TRIGGER_WORD));
 	L2TriggerProcessor::initialize(
 			TriggerOptions::GetDouble(OPTION_L2_BYPASS_PROBABILITY),
-			TriggerOptions::GetInt(OPTION_L2_BYPASS_TRIGGER_WORD), TriggerOptions::GetInt(OPTION_L1_BYPASS_TRIGGER_WORD));
+			TriggerOptions::GetInt(OPTION_L2_BYPASS_TRIGGER_WORD),
+			TriggerOptions::GetInt(OPTION_L1_BYPASS_TRIGGER_WORD));
 
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
 	OPTION_ACTIVE_SOURCE_IDS);
@@ -88,6 +88,7 @@ int main(int argc, char* argv[]) {
 	std::vector<HeaderData> headers = FileReader::getActiveHeaderData(sourceIDs,
 			headerFileExpressions);
 
+
 	if (headers.empty()) {
 		std::cout << "Did not find any header file!" << std::endl;
 		return 0;
@@ -100,8 +101,7 @@ int main(int argc, char* argv[]) {
 	 */
 	std::vector<std::pair<int, int>> sourceIDPairsVector;
 	for (HeaderData header : headers) {
-		std::cout << "Found header file for " << header.binaryFile
-				<< std::endl;
+		std::cout << "Found header file for " << header.binaryFile << std::endl;
 		sourceIDPairsVector.push_back(
 				std::move(
 						std::make_pair(header.sourceID,
@@ -109,6 +109,7 @@ int main(int argc, char* argv[]) {
 	}
 	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID),
 			sourceIDPairsVector, { }, { }, -1);
+
 
 	test::EventBuilder builder;
 
