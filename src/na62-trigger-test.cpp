@@ -44,8 +44,6 @@ int main(int argc, char* argv[]) {
 	TriggerOptions::Load(argc, argv);
 	MyOptions::Load(argc, argv);
 
-	EventSerializer::initialize();
-
 	L1TriggerProcessor::initialize(
 			TriggerOptions::GetDouble(OPTION_L1_BYPASS_PROBABILITY),
 			TriggerOptions::GetInt(OPTION_L1_BYPASS_TRIGGER_WORD));
@@ -77,7 +75,7 @@ int main(int argc, char* argv[]) {
 	/*
 	 * Read all header files
 	 */
-	std::cout << "Reading " << headerFileExpressions.size() << " header file: ";
+	std::cout << "Reading " << headerFileExpressions.size() << " header files: ";
 	for (auto& headerFile : headerFileExpressions) {
 		std::cout << headerFile;
 		if (&headerFile != &*--headerFileExpressions.end())
@@ -110,6 +108,7 @@ int main(int argc, char* argv[]) {
 	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID),
 			sourceIDPairsVector, { }, { }, -1);
 
+	EventSerializer::initialize();
 
 	test::EventBuilder builder;
 
