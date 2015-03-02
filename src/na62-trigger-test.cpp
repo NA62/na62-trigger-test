@@ -34,7 +34,7 @@ bool init_function() {
 
 int main(int argc, char* argv[]) {
 	/*
-	 * Unit tests
+	 * Unit tests (Will run all tests included in trigger-algorithms/UnitTests.h)
 	 */
 	boost::unit_test::unit_test_main(&init_function, argc, argv);
 
