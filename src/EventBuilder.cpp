@@ -77,7 +77,7 @@ void EventBuilder::buildMEP(l0::MEP_HDR* mepHDR) {
 	l0::MEP* mep = new l0::MEP((char*) mepHDR, mepHDR->mepLength,
 			(char*) mepHDR);
 
-	for (int i = 0; i != mep->getNumberOfEvents(); i++) {
+	for (int i = 0; i != mep->getNumberOfFragments(); i++) {
 		l0::MEPFragment* fragment = mep->getFragment(i);
 		buildL1(fragment);
 	}
