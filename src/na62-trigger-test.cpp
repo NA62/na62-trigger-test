@@ -38,6 +38,8 @@ int main(int argc, char* argv[]) {
 	 */
 	boost::unit_test::unit_test_main(&init_function, argc, argv);
 
+	L1TriggerProcessor::initializeDownscaling();
+
 	/*
 	 * Static Class initializations
 	 */
