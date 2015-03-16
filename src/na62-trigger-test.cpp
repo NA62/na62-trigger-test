@@ -47,12 +47,9 @@ int main(int argc, char* argv[]) {
 	MyOptions::Load(argc, argv);
 
 	L1TriggerProcessor::initialize(
-			TriggerOptions::GetDouble(OPTION_L1_BYPASS_PROBABILITY),
-			TriggerOptions::GetInt(OPTION_L1_BYPASS_TRIGGER_WORD));
+			TriggerOptions::GetDouble(OPTION_L1_BYPASS_PROBABILITY));
 	L2TriggerProcessor::initialize(
-			TriggerOptions::GetDouble(OPTION_L2_BYPASS_PROBABILITY),
-			TriggerOptions::GetInt(OPTION_L2_BYPASS_TRIGGER_WORD),
-			TriggerOptions::GetInt(OPTION_L1_BYPASS_TRIGGER_WORD));
+			TriggerOptions::GetDouble(OPTION_L2_BYPASS_PROBABILITY));
 
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
 	OPTION_ACTIVE_SOURCE_IDS);
