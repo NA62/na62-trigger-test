@@ -77,7 +77,7 @@ void EventBuilder::buildMEP(l0::MEP_HDR* mepHDR) {
 	l0::MEP* mep = new l0::MEP((char*) mepHDR, mepHDR->mepLength,
 			(char*) mepHDR);
 
-	for (int i = 0; i != mep->getNumberOfFragments(); i++) {
+	for (uint i = 0; i != mep->getNumberOfFragments(); i++) {
 		l0::MEPFragment* fragment = mep->getFragment(i);
 		buildL1(fragment);
 	}
@@ -87,7 +87,7 @@ void EventBuilder::processL1(Event* event) {
 	/*
 	 * Read the L0 trigger type word and the fine time from the L0TP data
 	 */
-	const uint8_t l0TriggerTypeWord = event->readTriggerTypeWordAndFineTime();
+	const uint_fast8_t l0TriggerTypeWord = event->readTriggerTypeWordAndFineTime();
 
 	/*
 	 * Store the global event timestamp taken from the reverence detector
@@ -99,8 +99,8 @@ void EventBuilder::processL1(Event* event) {
 	/*
 	 * Process Level 1 trigger
 	 */
-	uint8_t l1TriggerTypeWord = L1TriggerProcessor::compute(event);
-	uint16_t L0L1Trigger(l0TriggerTypeWord | l1TriggerTypeWord << 8);
+	uint_fast8_t l1TriggerTypeWord = L1TriggerProcessor::compute(event);
+	uint_fast16_t L0L1Trigger(l0TriggerTypeWord | l1TriggerTypeWord << 8);
 
 	event->setL1Processed(L0L1Trigger);
 
@@ -112,7 +112,7 @@ void EventBuilder::processL1(Event* event) {
 }
 
 void EventBuilder::processL2(Event* event) {
-	uint8_t l2TriggerTypeWord = L2TriggerProcessor::compute(event);
+	uint_fast8_t l2TriggerTypeWord = L2TriggerProcessor::compute(event);
 	event->setL2Processed(l2TriggerTypeWord);
 
 	if (l2TriggerTypeWord) {
