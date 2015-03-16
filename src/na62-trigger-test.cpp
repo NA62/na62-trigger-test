@@ -16,6 +16,7 @@
 #include <vector>
 #include <l1/L1TriggerProcessor.h>
 #include <l2/L2TriggerProcessor.h>
+#include <eventBuilding/EventSerializer.h>
 
 #include <options/TriggerOptions.h>
 #include <UnitTests.h>
@@ -33,9 +34,11 @@ bool init_function() {
 
 int main(int argc, char* argv[]) {
 	/*
-	 * Unit tests
+	 * Unit tests (Will run all tests included in trigger-algorithms/UnitTests.h)
 	 */
 	boost::unit_test::unit_test_main(&init_function, argc, argv);
+
+	L1TriggerProcessor::registerDownscalingAlgorithms();
 
 	/*
 	 * Static Class initializations
@@ -44,11 +47,9 @@ int main(int argc, char* argv[]) {
 	MyOptions::Load(argc, argv);
 
 	L1TriggerProcessor::initialize(
-			TriggerOptions::GetDouble(OPTION_L1_BYPASS_PROBABILITY),
-			TriggerOptions::GetInt(OPTION_L1_BYPASS_TRIGGER_WORD));
+			TriggerOptions::GetDouble(OPTION_L1_BYPASS_PROBABILITY));
 	L2TriggerProcessor::initialize(
-			TriggerOptions::GetDouble(OPTION_L2_BYPASS_PROBABILITY),
-			TriggerOptions::GetInt(OPTION_L2_BYPASS_TRIGGER_WORD), TriggerOptions::GetInt(OPTION_L1_BYPASS_TRIGGER_WORD));
+			TriggerOptions::GetDouble(OPTION_L2_BYPASS_PROBABILITY));
 
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
 	OPTION_ACTIVE_SOURCE_IDS);
@@ -73,7 +74,7 @@ int main(int argc, char* argv[]) {
 	/*
 	 * Read all header files
 	 */
-	std::cout << "Reading " << headerFileExpressions.size() << " header file: ";
+	std::cout << "Reading " << headerFileExpressions.size() << " header files: ";
 	for (auto& headerFile : headerFileExpressions) {
 		std::cout << headerFile;
 		if (&headerFile != &*--headerFileExpressions.end())
@@ -83,6 +84,7 @@ int main(int argc, char* argv[]) {
 
 	std::vector<HeaderData> headers = FileReader::getActiveHeaderData(sourceIDs,
 			headerFileExpressions);
+
 
 	if (headers.empty()) {
 		std::cout << "Did not find any header file!" << std::endl;
@@ -96,8 +98,7 @@ int main(int argc, char* argv[]) {
 	 */
 	std::vector<std::pair<int, int>> sourceIDPairsVector;
 	for (HeaderData header : headers) {
-		std::cout << "Found header file for " << header.binaryFile
-				<< std::endl;
+		std::cout << "Found header file for " << header.binaryFile << std::endl;
 		sourceIDPairsVector.push_back(
 				std::move(
 						std::make_pair(header.sourceID,
@@ -105,6 +106,8 @@ int main(int argc, char* argv[]) {
 	}
 	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID),
 			sourceIDPairsVector, { }, { }, -1);
+
+	EventSerializer::initialize();
 
 	test::EventBuilder builder;
 
