@@ -117,5 +117,8 @@ int main(int argc, char* argv[]) {
 		FileReader::readDataFromFile(header, finishedMEPCallback);
 	}
 
+	std::cout<< "#################################" << std::endl;
+	std::cout<< "Finished processing all data without any fatal errors!" << std::endl;
+
 	return 0;
 }
