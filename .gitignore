@@ -30,3 +30,4 @@ data/
 .externalToolBuilders/
 .settings/
 .build.properties
+/Release/

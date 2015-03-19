@@ -74,7 +74,8 @@ int main(int argc, char* argv[]) {
 	/*
 	 * Read all header files
 	 */
-	std::cout << "Reading " << headerFileExpressions.size() << " header files: ";
+	std::cout << "Reading " << headerFileExpressions.size()
+			<< " header files: ";
 	for (auto& headerFile : headerFileExpressions) {
 		std::cout << headerFile;
 		if (&headerFile != &*--headerFileExpressions.end())
@@ -84,7 +85,6 @@ int main(int argc, char* argv[]) {
 
 	std::vector<HeaderData> headers = FileReader::getActiveHeaderData(sourceIDs,
 			headerFileExpressions);
-
 
 	if (headers.empty()) {
 		std::cout << "Did not find any header file!" << std::endl;
@@ -113,12 +113,14 @@ int main(int argc, char* argv[]) {
 
 	for (auto& header : headers) {
 		std::function<void(l0::MEP_HDR*)> finishedMEPCallback = std::bind(
-				&test::EventBuilder::buildMEP, &builder, std::placeholders::_1);
+				&test::EventBuilder::buildMEP, &builder,
+				std::placeholders::_1);
 		FileReader::readDataFromFile(header, finishedMEPCallback);
 	}
 
-	std::cout<< "#################################" << std::endl;
-	std::cout<< "Finished processing all data without any fatal errors!" << std::endl;
+	std::cout << "#################################" << std::endl;
+	std::cout << "Finished processing all data without any fatal errors!"
+			<< std::endl;
 
 	return 0;
 }

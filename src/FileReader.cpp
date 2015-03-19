@@ -202,7 +202,7 @@ void FileReader::readDataFromFile(HeaderData header,
 		eventNumber++;
 	}
 
-	LOG_INFO<< "Found "<< eventNumber << " events in the binary file " << binaryFile << ENDL;
+	//LOG_INFO << "Found "<< eventNumber << " events in the binary file " << binaryFile << ENDL;
 
 	/*
 	 * Send all remaining MEPs to the callback

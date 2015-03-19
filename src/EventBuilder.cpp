@@ -107,7 +107,7 @@ void EventBuilder::processL1(Event* event) {
 	if (L0L1Trigger != 0) {
 		processL2(event);
 	} else {
-		delete event;
+		event->destroy();
 	}
 }
 
@@ -121,7 +121,7 @@ void EventBuilder::processL2(Event* event) {
 			outputFile_->write((char*) data, data->length * 4);
 		}
 	}
-	delete event;
+	event->destroy();
 }
 
 } /* namespace test */
