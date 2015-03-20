@@ -150,7 +150,7 @@ void FileReader::readDataFromFile(HeaderData header,
 
 			const int fragmentSize = subEvent.ROBDataLengths[sourceSubID];
 
-			l0::MEP_HDR* mep = (l0::MEP_HDR*) buffer;
+			l0::MEP_HDR* mep = reinterpret_cast<l0::MEP_HDR*>(buffer);
 
 			/*
 			 * Check if the MEP is not yet initialized or already full
@@ -158,7 +158,7 @@ void FileReader::readDataFromFile(HeaderData header,
 			if (buffer == nullptr
 					|| (mep->mepLength + sizeof(l0::MEPFragment_HDR)
 							+ fragmentSize * 4 > MaxMEPSize)) {
-				// Send the finished MEP to the callback
+				// Send the last finished MEP to the callback
 				if (buffer != nullptr) {
 					finishedMEPCallback(mep);
 				}
