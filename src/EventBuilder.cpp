@@ -52,6 +52,12 @@ EventBuilder::~EventBuilder() {
 		outputFile_->close();
 		delete outputFile_;
 	}
+
+	for (auto& event : eventPool_) {
+		if (event) {
+			delete event;
+		}
+	}
 }
 
 void EventBuilder::buildL1(l0::MEPFragment* fragment) {
@@ -87,7 +93,8 @@ void EventBuilder::processL1(Event* event) {
 	/*
 	 * Read the L0 trigger type word and the fine time from the L0TP data
 	 */
-	const uint_fast8_t l0TriggerTypeWord = event->readTriggerTypeWordAndFineTime();
+	const uint_fast8_t l0TriggerTypeWord =
+			event->readTriggerTypeWordAndFineTime();
 
 	/*
 	 * Store the global event timestamp taken from the reverence detector
@@ -119,6 +126,7 @@ void EventBuilder::processL2(Event* event) {
 		if (outputFile_ != nullptr) {
 			const EVENT_HDR* data = EventSerializer::SerializeEvent(event);
 			outputFile_->write((char*) data, data->length * 4);
+			delete[] data;
 		}
 	}
 	event->destroy();

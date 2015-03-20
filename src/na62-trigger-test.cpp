@@ -111,11 +111,13 @@ int main(int argc, char* argv[]) {
 
 	test::EventBuilder builder;
 
-	for (auto& header : headers) {
-		std::function<void(l0::MEP_HDR*)> finishedMEPCallback = std::bind(
-				&test::EventBuilder::buildMEP, &builder,
-				std::placeholders::_1);
-		FileReader::readDataFromFile(header, finishedMEPCallback);
+	for (int i = 0; i < 1; i++) {
+		for (auto& header : headers) {
+			std::function<void(l0::MEP_HDR*)> finishedMEPCallback = std::bind(
+					&test::EventBuilder::buildMEP, &builder,
+					std::placeholders::_1);
+			FileReader::readDataFromFile(header, finishedMEPCallback);
+		}
 	}
 
 	std::cout << "#################################" << std::endl;
