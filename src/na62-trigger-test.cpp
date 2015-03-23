@@ -1,3 +1,4 @@
+
 //============================================================================
 // Name        : NA62 online trigger algorithm test
 // Author      : Jonas Kunze (kunze.jonas@gmail.com)
@@ -8,6 +9,15 @@
 
 #include <boost/bind/placeholders.hpp>
 #include <boost/filesystem/path.hpp>
+#include <eventBuilding/Event.h>
+#include <storage/BurstFileWriter.h>
+#include <structs/Event.h>
+#include <sys/types.h>
+#include <utils/DataDumper.h>
+#include <cstdbool>
+#include <iostream>
+#include <iterator>
+#include <string>
 #include <eventBuilding/SourceIDManager.h>
 #include <l0/MEP.h>
 #include <algorithm>
@@ -16,7 +26,7 @@
 #include <vector>
 #include <l1/L1TriggerProcessor.h>
 #include <l2/L2TriggerProcessor.h>
-#include <eventBuilding/EventSerializer.h>
+#include <storage/EventSerializer.h>
 
 #include <options/TriggerOptions.h>
 #include <UnitTests.h>
@@ -30,6 +40,29 @@ using namespace na62::test;
 
 bool init_function() {
 	return true;
+}
+
+void writeBurstFile(test::EventBuilder& builder, uint burstID) {
+	auto events = builder.getFinishedEvents();
+
+	std::string fileName = Options::GetString(OPTION_RAW_FILE_NAME);
+	if (!fileName.empty()) {
+		std::string outputDir = Options::GetString(OPTION_OUTPUT_DIR);
+
+		DataDumper::generateDirIfNotExists(outputDir);
+		std::string filePath = DataDumper::generateFreeFilePath(fileName,
+				outputDir);
+
+		BurstFileWriter writer(filePath, fileName, events.size(),
+				events[0]->getTimestamp(), 0, burstID);
+
+		for (auto& event : events) {
+			const EVENT_HDR* data = EventSerializer::SerializeEvent(event);
+			writer.writeEvent(data);
+			delete[] data;
+			event->destroy();
+		}
+	}
 }
 
 int main(int argc, char* argv[]) {
@@ -118,6 +151,7 @@ int main(int argc, char* argv[]) {
 					std::placeholders::_1);
 			FileReader::readDataFromFile(header, finishedMEPCallback);
 		}
+		writeBurstFile(builder, i);
 	}
 
 	std::cout << "#################################" << std::endl;

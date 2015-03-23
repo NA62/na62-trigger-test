@@ -8,51 +8,21 @@
 #include "EventBuilder.h"
 
 #include <eventBuilding/SourceIDManager.h>
-#include <eventBuilding/EventSerializer.h>
-#include <l0/MEPFragment.h>
 #include <l0/MEP.h>
+#include <l0/MEPFragment.h>
 #include <l0/Subevent.h>
 #include <l1/L1TriggerProcessor.h>
 #include <l2/L2TriggerProcessor.h>
+#include <sys/types.h>
 #include <cstdint>
-#include <structs/Event.h>
-#include <string>
-
-#include <utils/DataDumper.h>
-
-#include "options/MyOptions.h"
 
 namespace na62 {
 namespace test {
 
-EventBuilder::EventBuilder() :
-		outputFile_(nullptr) {
-	eventPool_.resize(1000);
-
-	std::string fileName = Options::GetString(OPTION_RAW_FILE_NAME);
-	if (!fileName.empty()) {
-		std::string outputDir = Options::GetString(OPTION_OUTPUT_DIR);
-
-		DataDumper::generateDirIfNotExists(outputDir);
-		std::string filePath = DataDumper::generateFreeFilePath(fileName,
-				outputDir);
-		outputFile_ = new std::ofstream;
-		outputFile_->open(filePath,
-				std::ios::out | std::ios::trunc | std::ios::binary);
-
-		if (!outputFile_->good()) {
-			LOG_ERROR<< "Unable to write to file " << filePath;
-			exit(1);
-		}
-	}
+EventBuilder::EventBuilder() {
 }
 
 EventBuilder::~EventBuilder() {
-	if (outputFile_ != nullptr) {
-		outputFile_->close();
-		delete outputFile_;
-	}
-
 	for (auto& event : eventPool_) {
 		if (event) {
 			delete event;
@@ -63,7 +33,7 @@ EventBuilder::~EventBuilder() {
 void EventBuilder::buildL1(l0::MEPFragment* fragment) {
 	Event* event;
 	if (fragment->getEventNumber() >= eventPool_.size()) { // Memory overflow
-		eventPool_.resize(fragment->getEventNumber() * 2);
+		eventPool_.resize(fragment->getEventNumber() + 1);
 		event = new Event(fragment->getEventNumber());
 		eventPool_[fragment->getEventNumber()] = event;
 	} else {
@@ -122,14 +92,9 @@ void EventBuilder::processL2(Event* event) {
 	uint_fast8_t l2TriggerTypeWord = L2TriggerProcessor::compute(event);
 	event->setL2Processed(l2TriggerTypeWord);
 
-	if (l2TriggerTypeWord) {
-		if (outputFile_ != nullptr) {
-			const EVENT_HDR* data = EventSerializer::SerializeEvent(event);
-			outputFile_->write((char*) data, data->length * 4);
-			delete[] data;
-		}
+	if (!l2TriggerTypeWord) {
+		event->destroy();
 	}
-	event->destroy();
 }
 
 } /* namespace test */

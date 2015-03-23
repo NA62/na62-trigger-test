@@ -9,9 +9,11 @@
 #define EVENTBUILDER_H_
 
 #include <eventBuilding/Event.h>
-#include <iostream>
 #include <vector>
-#include <fstream>
+
+namespace na62 {
+class BurstFileWriter;
+} /* namespace na62 */
 
 namespace na62 {
 namespace l0 {
@@ -26,7 +28,6 @@ class EventBuilder {
 private:
 	std::vector<Event*> eventPool_;
 
-	std::ofstream* outputFile_;
 	/*
 	 * Processes a single MEPFragment
 	 */
@@ -42,6 +43,10 @@ public:
 	 * Processes all fragments of the MEP
 	 */
 	void buildMEP(l0::MEP_HDR* mepHDR);
+
+	std::vector<Event*> getFinishedEvents(){
+		return eventPool_;
+	}
 };
 } /* namespace test */
 } /* namespace na62 */
