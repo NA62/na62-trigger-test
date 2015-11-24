@@ -10,6 +10,7 @@
 
 #include <eventBuilding/Event.h>
 #include <vector>
+#include <structs/DataContainer.h>
 
 namespace na62 {
 class BurstFileWriter;
@@ -27,6 +28,7 @@ namespace test {
 class EventBuilder {
 private:
 	std::vector<Event*> eventPool_;
+	DataContainer originaldata_;
 
 	/*
 	 * Processes a single MEPFragment
