@@ -19,6 +19,7 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <l0/MEP.h>
 #include <l0/MEPFragment.h>
+#include <structs/L0TPHeader.h>
 #include <utils/Utils.h>
 #include <algorithm>
 #include <cstdlib>
@@ -76,7 +77,7 @@ HeaderData FileReader::readHeaderFile(std::string filePath) {
 	headerData.numberOfEvents = Utils::ToUInt(headerRawData[2]);
 
 	/*
-	 * Following lines: $eventLengthN:$listOfROBDataLengthsN
+	 * Following lines: $eventLengthN,$timestamp,$finetime:$listOfROBDataLengthsN
 	 */
 	int eventsToRead = headerData.numberOfEvents;
 
@@ -90,13 +91,15 @@ HeaderData FileReader::readHeaderFile(std::string filePath) {
 		getline(file, fileLine);
 		boost::algorithm::split(eventLine, fileLine, boost::is_any_of(":"));
 		/*
-		 * First column: total event length (sum of all sources), timestamp
+		 * First column: total event length (sum of all sources), timestamp, trigger reference detector finetime
 		 */
 		std::vector<std::string> eventInfo(2);
+		//std::vector<std::string> eventInfo(3);
 		boost::algorithm::split(eventInfo, eventLine[0], boost::is_any_of(","));
 		subEvent.eventLength = Utils::ToUInt(eventInfo[0]);
 		subEvent.timestamp = Utils::ToUInt(eventInfo[1]);
 
+		//subEvent.finetime = Utils::ToUInt(eventInfo[2]);
 		/*
 		 * Second column: list of number of 32bit-words for each ROB event fragment
 		 */
@@ -184,6 +187,7 @@ void FileReader::readDataFromFile(HeaderData header,
 					+ fragmentSize * 4;
 
 			fragmentHdr->eventNumberLSB_ = eventNumber;
+			//fragmentHdr->reserved_ = subEvent.finetime;
 			fragmentHdr->lastEventOfBurst_ = 0;
 			fragmentHdr->timestamp_ = subEvent.timestamp;
 

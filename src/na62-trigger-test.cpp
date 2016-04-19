@@ -80,10 +80,10 @@ int main(int argc, char* argv[]) {
 	TriggerOptions::Load(argc, argv);
 	MyOptions::Load(argc, argv);
 
-	L1TriggerProcessor::initialize(
-			TriggerOptions::GetDouble(OPTION_L1_BYPASS_PROBABILITY));
-	L2TriggerProcessor::initialize(
-			TriggerOptions::GetDouble(OPTION_L2_BYPASS_PROBABILITY));
+	L1TriggerProcessor::initialize();
+	L2TriggerProcessor::initialize();
+//	L1TriggerProcessor::initialize(TriggerOptions::GetDouble(OPTION_L1_BYPASS_PROBABILITY));
+//	L2TriggerProcessor::initialize(TriggerOptions::GetDouble(OPTION_L2_BYPASS_PROBABILITY));
 
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
 	OPTION_ACTIVE_SOURCE_IDS);

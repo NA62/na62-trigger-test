@@ -51,7 +51,8 @@ void EventBuilder::buildL1(l0::MEPFragment* fragment) {
 
 void EventBuilder::buildMEP(l0::MEP_HDR* mepHDR) {
 //	l0::MEP* mep = new l0::MEP((char*) mepHDR, mepHDR->mepLength, (char*) mepHDR);
-	l0::MEP* mep = new l0::MEP((char*) mepHDR, mepHDR->mepLength, originaldata_);
+	l0::MEP* mep = new l0::MEP((char*) mepHDR, mepHDR->mepLength,
+			originaldata_);
 
 	for (uint i = 0; i != mep->getNumberOfFragments(); i++) {
 		l0::MEPFragment* fragment = mep->getFragment(i);
@@ -68,22 +69,29 @@ void EventBuilder::processL1(Event* event) {
 
 	/*
 	 * Store the global event timestamp taken from the reverence detector
+	 * Store fine time taken from the reference detector (temporary solution)
 	 */
 	l0::MEPFragment* tsFragment = event->getL0SubeventBySourceIDNum(
 			SourceIDManager::TS_SOURCEID_NUM)->getFragment(0);
 	event->setTimestamp(tsFragment->getTimestamp());
+	//event->setFinetime(tsFragment->getDataWithMepHeader()->reserved_);
 
 	/*
-	 * Process Level 1 trigger
+	 * Process Level 1 trigger with all options: reduction, downscaling, bypassing
 	 */
+//	printf("EventBuilder.cpp: l0TriggerTypeWord %x\n", (uint)l0TriggerTypeWord);
 	uint_fast8_t l1TriggerTypeWord = L1TriggerProcessor::compute(event);
+//	printf("EventBuilder.cpp: l1TriggerTypeWord %x\n", (uint)l1TriggerTypeWord);
 	uint_fast16_t L0L1Trigger(l0TriggerTypeWord | l1TriggerTypeWord << 8);
+//	printf("EventBuilder.cpp: L0L1Trigger %x\n", (uint)L0L1Trigger);
 
 	event->setL1Processed(L0L1Trigger);
 
-	if (L0L1Trigger != 0) {
+	if (l1TriggerTypeWord != 0) {
+//		LOG_INFO<< "Process L2!!!" << ENDL;
 		processL2(event);
 	} else {
+//		LOG_INFO<< "Free Event!!!" << ENDL;
 		event->destroy();
 	}
 }
@@ -93,6 +101,7 @@ void EventBuilder::processL2(Event* event) {
 	event->setL2Processed(l2TriggerTypeWord);
 
 	if (!l2TriggerTypeWord) {
+//		LOG_INFO<< "Free Event!!!" << ENDL;
 		event->destroy();
 	}
 }
