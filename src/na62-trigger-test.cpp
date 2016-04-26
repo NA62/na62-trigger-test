@@ -26,7 +26,9 @@
 #include <vector>
 #include <l1/L1TriggerProcessor.h>
 #include <l2/L2TriggerProcessor.h>
+#include <common/HLTriggerManager.h>
 #include <storage/EventSerializer.h>
+#include <struct/HLTConfParams.h>
 
 #include <options/TriggerOptions.h>
 #include <UnitTests.h>
@@ -80,8 +82,13 @@ int main(int argc, char* argv[]) {
 	TriggerOptions::Load(argc, argv);
 	MyOptions::Load(argc, argv);
 
-	L1TriggerProcessor::initialize();
-	L2TriggerProcessor::initialize();
+	HLTriggerManager::createXMLFile();
+
+	HLTStruct HLTConfParams;
+	HLTriggerManager::fillStructFromXMLFile(HLTConfParams);
+
+	L1TriggerProcessor::initialize(HLTConfParams.l1);
+	L2TriggerProcessor::initialize(HLTConfParams.l2);
 //	L1TriggerProcessor::initialize(TriggerOptions::GetDouble(OPTION_L1_BYPASS_PROBABILITY));
 //	L2TriggerProcessor::initialize(TriggerOptions::GetDouble(OPTION_L2_BYPASS_PROBABILITY));
 
