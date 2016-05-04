@@ -44,7 +44,7 @@ void EventBuilder::buildL1(l0::MEPFragment* fragment) {
 		}
 	}
 
-	if (event->addL0Event(fragment, 0)) {
+	if (event->addL0Fragment(fragment, 0)) {
 		processL1(event);
 	}
 }

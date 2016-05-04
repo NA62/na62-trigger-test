@@ -89,8 +89,6 @@ int main(int argc, char* argv[]) {
 
 	L1TriggerProcessor::initialize(HLTConfParams.l1);
 	L2TriggerProcessor::initialize(HLTConfParams.l2);
-//	L1TriggerProcessor::initialize(TriggerOptions::GetDouble(OPTION_L1_BYPASS_PROBABILITY));
-//	L2TriggerProcessor::initialize(TriggerOptions::GetDouble(OPTION_L2_BYPASS_PROBABILITY));
 
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
 	OPTION_ACTIVE_SOURCE_IDS);
@@ -145,8 +143,9 @@ int main(int argc, char* argv[]) {
 						std::make_pair(header.sourceID,
 								header.numberOfReadOutBoards)));
 	}
-	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID),
-			sourceIDPairsVector, { }, { }, -1);
+	std::vector<std::pair<int, int>> sourceIDPairsVectorL1 = sourceIDPairsVector;
+//	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID),sourceIDPairsVector, { }, { }, -1);
+	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID),sourceIDPairsVector,sourceIDPairsVectorL1);
 
 	EventSerializer::initialize();
 

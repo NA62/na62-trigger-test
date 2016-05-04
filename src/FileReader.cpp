@@ -65,11 +65,8 @@ HeaderData FileReader::readHeaderFile(std::string filePath) {
 	getline(file, fileLine);
 	boost::algorithm::split(headerRawData, fileLine, boost::is_any_of(":"));
 	if (headerRawData.size() != 3) {
-		LOG_ERROR<< "Error after reading header file line: " << fileLine
-		<< ENDL;
-		LOG_ERROR
-		<< "The second line of a header file must have 3 colon-separated strings: $sourceID:$numberOfReadOutBoards:$numberOfEvents"
-		<< ENDL;
+		LOG_ERROR("Error after reading header file line: " << fileLine);
+		LOG_ERROR("The second line of a header file must have 3 colon-separated strings: $sourceID:$numberOfReadOutBoards:$numberOfEvents");
 		exit(1);
 	}
 	headerData.sourceID = Utils::ToUInt(headerRawData[0]);
@@ -132,7 +129,7 @@ void FileReader::readDataFromFile(HeaderData header,
 
 	std::ifstream file(binaryFile, std::ios::in | std::ios::binary);
 	if (!file.is_open()) {
-		LOG_ERROR<< "Unable to open file " << header.binaryFile << ENDL;
+		LOG_ERROR("Unable to open file " << header.binaryFile);
 		exit(1);
 	}
 
