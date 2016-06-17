@@ -1,4 +1,3 @@
-
 //============================================================================
 // Name        : NA62 online trigger algorithm test
 // Author      : Jonas Kunze (kunze.jonas@gmail.com)
@@ -82,7 +81,7 @@ int main(int argc, char* argv[]) {
 	TriggerOptions::Load(argc, argv);
 	MyOptions::Load(argc, argv);
 
-	HLTriggerManager::createXMLFile();
+//	HLTriggerManager::createXMLFile();
 
 	HLTStruct HLTConfParams;
 	HLTriggerManager::fillStructFromXMLFile(HLTConfParams);
@@ -91,7 +90,7 @@ int main(int argc, char* argv[]) {
 	L2TriggerProcessor::initialize(HLTConfParams.l2);
 
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
-	OPTION_ACTIVE_SOURCE_IDS);
+			OPTION_ACTIVE_SOURCE_IDS);
 
 	/*
 	 * Extracting input header files from argument list
@@ -145,7 +144,8 @@ int main(int argc, char* argv[]) {
 	}
 	std::vector<std::pair<int, int>> sourceIDPairsVectorL1 = sourceIDPairsVector;
 //	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID),sourceIDPairsVector, { }, { }, -1);
-	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID),sourceIDPairsVector,sourceIDPairsVectorL1);
+	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID),
+			sourceIDPairsVector, sourceIDPairsVectorL1);
 
 	EventSerializer::initialize();
 
@@ -161,6 +161,18 @@ int main(int argc, char* argv[]) {
 		writeBurstFile(builder, i);
 	}
 
+	LOG_INFO(
+			"Number of L1 Input Events " << L1TriggerProcessor::GetL1InputStats());
+	LOG_INFO(
+			"Number of Accepted L1 Physics Triggers " << (uint) test::EventBuilder::GetL1AcceptedStats());
+	LOG_INFO(
+			"Number of isAllL1AlgoDisable Events " << (uint) test::EventBuilder::GetL1AllAlgoDisabledStats());
+	LOG_INFO(
+			"Number of L1 Bypassed Events " << (uint) test::EventBuilder::GetL1BypassedStats());
+	LOG_INFO(
+			"Number of Flagged L1 Algo processed " << (uint) test::EventBuilder::GetL1FlaggedAlgoProcessedStats());
+	LOG_INFO(
+			"Number of AutoPass/Flag Events " << (uint) test::EventBuilder::GetL1AutoPassFlagStats());
 	std::cout << "#################################" << std::endl;
 	std::cout << "Finished processing all data without any fatal errors!"
 			<< std::endl;

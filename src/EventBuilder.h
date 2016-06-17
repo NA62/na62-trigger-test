@@ -11,6 +11,7 @@
 #include <eventBuilding/Event.h>
 #include <vector>
 #include <structs/DataContainer.h>
+#include <atomic>
 
 namespace na62 {
 class BurstFileWriter;
@@ -29,6 +30,11 @@ class EventBuilder {
 private:
 	std::vector<Event*> eventPool_;
 	DataContainer originaldata_;
+	static std::atomic<uint64_t> L1AcceptedEvents_;
+	static std::atomic<uint64_t> L1AllAlgoDisabledEvents_;
+	static std::atomic<uint64_t> L1BypassedEvents_;
+	static std::atomic<uint64_t> L1FlaggedAlgoProcessedEvents_;
+	static std::atomic<uint64_t> L1AutoPassFlagEvents_;
 
 	/*
 	 * Processes a single MEPFragment
@@ -46,8 +52,24 @@ public:
 	 */
 	void buildMEP(l0::MEP_HDR* mepHDR);
 
-	std::vector<Event*> getFinishedEvents(){
+	std::vector<Event*> getFinishedEvents() {
 		return eventPool_;
+	}
+
+	static inline uint64_t GetL1AcceptedStats() {
+		return L1AcceptedEvents_;
+	}
+	static inline uint64_t GetL1AllAlgoDisabledStats() {
+		return L1AllAlgoDisabledEvents_;
+	}
+	static inline uint64_t GetL1BypassedStats() {
+		return L1BypassedEvents_;
+	}
+	static inline uint64_t GetL1FlaggedAlgoProcessedStats() {
+		return L1FlaggedAlgoProcessedEvents_;
+	}
+	static inline uint64_t GetL1AutoPassFlagStats() {
+		return L1AutoPassFlagEvents_;
 	}
 };
 } /* namespace test */

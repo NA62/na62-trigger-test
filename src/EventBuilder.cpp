@@ -15,9 +15,16 @@
 #include <l2/L2TriggerProcessor.h>
 #include <sys/types.h>
 #include <cstdint>
+#include <structs/Event.h>
 
 namespace na62 {
 namespace test {
+
+std::atomic<uint64_t> EventBuilder::L1AcceptedEvents_(0);
+std::atomic<uint64_t> EventBuilder::L1AllAlgoDisabledEvents_(0);
+std::atomic<uint64_t> EventBuilder::L1BypassedEvents_(0);
+std::atomic<uint64_t> EventBuilder::L1FlaggedAlgoProcessedEvents_(0);
+std::atomic<uint64_t> EventBuilder::L1AutoPassFlagEvents_(0);
 
 EventBuilder::EventBuilder() {
 }
@@ -82,6 +89,21 @@ void EventBuilder::processL1(Event* event) {
 //	printf("EventBuilder.cpp: l0TriggerTypeWord %x\n", (uint)l0TriggerTypeWord);
 	uint_fast8_t l1TriggerTypeWord = L1TriggerProcessor::compute(event);
 //	printf("EventBuilder.cpp: l1TriggerTypeWord %x\n", (uint)l1TriggerTypeWord);
+	/*
+	 * Given the l1TriggerTypeWord you can now count separately the bitset!
+	 * bit 0 = for OR of all algo verdicts
+	 * bit 4 = isAllAlgoDisable
+	 * bit 5 = isBypassed event
+	 * bit 6 = is at least one algo being processed in flagging
+	 * bit 7 = autoPass/Flag event
+	 */
+
+	if(l1TriggerTypeWord & 0x1) L1AcceptedEvents_.fetch_add(1, std::memory_order_relaxed);
+	if(l1TriggerTypeWord & TRIGGER_L1_ALLDISABLED) L1AllAlgoDisabledEvents_.fetch_add(1, std::memory_order_relaxed);
+	if(l1TriggerTypeWord & TRIGGER_L1_BYPASS) L1BypassedEvents_.fetch_add(1, std::memory_order_relaxed);
+	if(l1TriggerTypeWord & TRIGGER_L1_FLAGALGO) L1FlaggedAlgoProcessedEvents_.fetch_add(1, std::memory_order_relaxed);
+	if(l1TriggerTypeWord & TRIGGER_L1_AUTOPASS) L1AutoPassFlagEvents_.fetch_add(1, std::memory_order_relaxed);
+
 	uint_fast16_t L0L1Trigger(l0TriggerTypeWord | l1TriggerTypeWord << 8);
 //	printf("EventBuilder.cpp: L0L1Trigger %x\n", (uint)L0L1Trigger);
 

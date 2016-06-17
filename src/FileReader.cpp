@@ -28,6 +28,7 @@
 #include <options/Logging.h>
 
 #include "options/MyOptions.h"
+#include <l1/L1TriggerProcessor.h>
 
 namespace na62 {
 namespace test {
@@ -66,7 +67,8 @@ HeaderData FileReader::readHeaderFile(std::string filePath) {
 	boost::algorithm::split(headerRawData, fileLine, boost::is_any_of(":"));
 	if (headerRawData.size() != 3) {
 		LOG_ERROR("Error after reading header file line: " << fileLine);
-		LOG_ERROR("The second line of a header file must have 3 colon-separated strings: $sourceID:$numberOfReadOutBoards:$numberOfEvents");
+		LOG_ERROR(
+				"The second line of a header file must have 3 colon-separated strings: $sourceID:$numberOfReadOutBoards:$numberOfEvents");
 		exit(1);
 	}
 	headerData.sourceID = Utils::ToUInt(headerRawData[0]);
@@ -90,13 +92,20 @@ HeaderData FileReader::readHeaderFile(std::string filePath) {
 		/*
 		 * First column: total event length (sum of all sources), timestamp, trigger reference detector finetime
 		 */
-		std::vector<std::string> eventInfo(2);
-		//std::vector<std::string> eventInfo(3);
+//		std::vector<std::string> eventInfo(2);
+		std::vector<std::string> eventInfo(3);
 		boost::algorithm::split(eventInfo, eventLine[0], boost::is_any_of(","));
-		subEvent.eventLength = Utils::ToUInt(eventInfo[0]);
+		if (headerData.sourceID == 0x44)
+			subEvent.eventLength =
+					(int) (L1TriggerProcessor::GetL1DataPacketSize() / 4);
+		else
+			subEvent.eventLength = Utils::ToUInt(eventInfo[0]);
 		subEvent.timestamp = Utils::ToUInt(eventInfo[1]);
 
-		//subEvent.finetime = Utils::ToUInt(eventInfo[2]);
+		///////////////// Temporary Modification to store L0TP reference detector finetime ///////////////////////
+		subEvent.finetime = Utils::ToUInt(eventInfo[2]);
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		/*
 		 * Second column: list of number of 32bit-words for each ROB event fragment
 		 */
@@ -106,7 +115,11 @@ HeaderData FileReader::readHeaderFile(std::string filePath) {
 				boost::is_any_of(","));
 
 		for (std::string& length : fragmentLengths) {
-			subEvent.ROBDataLengths.push_back(Utils::ToUInt(length));
+			if (headerData.sourceID == 0x44)
+				subEvent.ROBDataLengths.push_back(
+						(int) (L1TriggerProcessor::GetL1DataPacketSize() / 4));
+			else
+				subEvent.ROBDataLengths.push_back(Utils::ToUInt(length));
 		}
 		headerData.subevents.push_back(std::move(subEvent));
 	}
@@ -184,7 +197,11 @@ void FileReader::readDataFromFile(HeaderData header,
 					+ fragmentSize * 4;
 
 			fragmentHdr->eventNumberLSB_ = eventNumber;
-			//fragmentHdr->reserved_ = subEvent.finetime;
+
+			///////////////// Temporary Modification to store L0TP reference detector finetime ///////////////////////
+			fragmentHdr->reserved_ = subEvent.finetime;
+			///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 			fragmentHdr->lastEventOfBurst_ = 0;
 			fragmentHdr->timestamp_ = subEvent.timestamp;
 
@@ -203,7 +220,7 @@ void FileReader::readDataFromFile(HeaderData header,
 		eventNumber++;
 	}
 
-	//LOG_INFO << "Found "<< eventNumber << " events in the binary file " << binaryFile << ENDL;
+//	LOG_INFO("Found "<< eventNumber << " events in the binary file " << binaryFile);
 
 	/*
 	 * Send all remaining MEPs to the callback
@@ -224,7 +241,6 @@ void FileReader::readDataFromFile(HeaderData header,
 std::vector<HeaderData> FileReader::getActiveHeaderData(
 		std::vector<int> sourceIDs, std::vector<std::string> headerFiles) {
 	std::vector<HeaderData> headers;
-
 	for (auto& path : headerFiles) {
 		if (boost::filesystem::is_regular(path)) {
 			HeaderData headerData = readHeaderFile(path);
