@@ -13,6 +13,13 @@
 #include <structs/DataContainer.h>
 #include <atomic>
 
+#define TRIGGER_L1_ALLDISABLED 0x10
+#define TRIGGER_L2_ALLDISABLED 0x10
+#define TRIGGER_L1_FLAGALGO 0x40
+#define TRIGGER_L2_FLAGALGO 0x40
+#define TRIGGER_L1_AUTOPASS 0x80
+#define TRIGGER_L2_AUTOPASS 0x80
+
 namespace na62 {
 class BurstFileWriter;
 } /* namespace na62 */
