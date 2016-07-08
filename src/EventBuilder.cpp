@@ -81,7 +81,10 @@ void EventBuilder::processL1(Event* event) {
 	l0::MEPFragment* tsFragment = event->getL0SubeventBySourceIDNum(
 			SourceIDManager::TS_SOURCEID_NUM)->getFragment(0);
 	event->setTimestamp(tsFragment->getTimestamp());
-	//event->setFinetime(tsFragment->getDataWithMepHeader()->reserved_);
+	///////////////// Temporary Modification to store L0TP reference detector finetime ///////////////////////
+	event->setFinetime(tsFragment->getDataWithMepHeader()->reserved_);
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 	/*
 	 * Process Level 1 trigger with all options: reduction, downscaling, bypassing
