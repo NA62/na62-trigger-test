@@ -96,14 +96,13 @@ HeaderData FileReader::readHeaderFile(std::string filePath) {
 		std::vector<std::string> eventInfo(3);
 		boost::algorithm::split(eventInfo, eventLine[0], boost::is_any_of(","));
 		if (headerData.sourceID == 0x44)
-			subEvent.eventLength =
-					(int) (L1TriggerProcessor::GetL1DataPacketSize() / 4);
+			subEvent.eventLength = (int) (L1TriggerProcessor::GetL1DataPacketSize() / 4);
 		else
 			subEvent.eventLength = Utils::ToUInt(eventInfo[0]);
 		subEvent.timestamp = Utils::ToUInt(eventInfo[1]);
 
 		///////////////// Temporary Modification to store L0TP reference detector finetime ///////////////////////
-		subEvent.finetime = Utils::ToUInt(eventInfo[2]);
+//		subEvent.finetime = Utils::ToUInt(eventInfo[2]);
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		/*
@@ -199,7 +198,7 @@ void FileReader::readDataFromFile(HeaderData header,
 			fragmentHdr->eventNumberLSB_ = eventNumber;
 
 			///////////////// Temporary Modification to store L0TP reference detector finetime ///////////////////////
-			fragmentHdr->reserved_ = subEvent.finetime;
+//			fragmentHdr->reserved_ = subEvent.finetime;
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 			fragmentHdr->lastEventOfBurst_ = 0;

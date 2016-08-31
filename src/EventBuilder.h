@@ -12,6 +12,7 @@
 #include <vector>
 #include <structs/DataContainer.h>
 #include <atomic>
+#include <l1/StrawAlgo.h>
 
 #define TRIGGER_L1_ALLDISABLED 0x10
 #define TRIGGER_L2_ALLDISABLED 0x10
@@ -78,6 +79,9 @@ public:
 	static inline uint64_t GetL1AutoPassFlagStats() {
 		return L1AutoPassFlagEvents_;
 	}
+private:
+	StrawAlgo strawAlgo_;
+
 };
 } /* namespace test */
 } /* namespace na62 */

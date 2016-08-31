@@ -8,6 +8,7 @@
 #include "EventBuilder.h"
 
 #include <eventBuilding/SourceIDManager.h>
+#include <eventBuilding/Event.h>
 #include <l0/MEP.h>
 #include <l0/MEPFragment.h>
 #include <l0/Subevent.h>
@@ -16,6 +17,7 @@
 #include <sys/types.h>
 #include <cstdint>
 #include <structs/Event.h>
+#include <structs/L0TPHeader.h>
 
 namespace na62 {
 namespace test {
@@ -58,8 +60,7 @@ void EventBuilder::buildL1(l0::MEPFragment* fragment) {
 
 void EventBuilder::buildMEP(l0::MEP_HDR* mepHDR) {
 //	l0::MEP* mep = new l0::MEP((char*) mepHDR, mepHDR->mepLength, (char*) mepHDR);
-	l0::MEP* mep = new l0::MEP((char*) mepHDR, mepHDR->mepLength,
-			originaldata_);
+	l0::MEP* mep = new l0::MEP((char*) mepHDR, mepHDR->mepLength, originaldata_);
 
 	for (uint i = 0; i != mep->getNumberOfFragments(); i++) {
 		l0::MEPFragment* fragment = mep->getFragment(i);
@@ -71,26 +72,46 @@ void EventBuilder::processL1(Event* event) {
 	/*
 	 * Read the L0 trigger type word and the fine time from the L0TP data
 	 */
-	const uint_fast8_t l0TriggerTypeWord =
-			event->readTriggerTypeWordAndFineTime();
+	const uint_fast8_t l0TriggerTypeWord = event->readTriggerTypeWordAndFineTime();
 
+//	LOG_INFO("Have you got the finetime? " << (uint)event->getFinetime());
+//	LOG_INFO("Have you got the data type? " << (uint)event->getTriggerDataType());
+//	LOG_INFO("Have you got the trigger flags? " << (uint)event->getTriggerFlags());
+//	LOG_INFO("Have you got the trigger word? " << (uint)event->getL0TriggerTypeWord());
+
+	if (SourceIDManager::L0TP_ACTIVE) {
+		l0::MEPFragment* L0TPEvent = (event->getL0TPSubevent())->getFragment(0);
+		L0TpHeader* L0TPData = (L0TpHeader*) L0TPEvent->getPayload();
+//		LOG_INFO("L0TPData Finetime " << (uint )L0TPData->refFineTime);
+//		LOG_INFO("L0TPData DataType " << (uint )L0TPData->dataType);
+//		for (uint i = 0; i < 7; i++) {
+//			LOG_INFO("L0TPData Primitives " << (uint )L0TPData->primitives[i]);
+//		}
+//		LOG_INFO("L0TPData previous Timestamp " << (uint )L0TPData->previousTimeStamp);
+//		LOG_INFO("L0TPData L0TriggerType " << (uint )L0TPData->l0TriggerType);
+//		LOG_INFO("L0TPData previous L0TriggerType " << (uint )L0TPData->previousl0TriggerType);
+//		LOG_INFO("L0TPData Trigger Flags " << (uint )L0TPData->l0TriggerFlags);
+
+		event->setFinetime(L0TPData->refFineTime);
+		event->setTriggerDataType(L0TPData->dataType);
+		event->setl0TriggerTypeWord(L0TPData->l0TriggerType);
+		event->setTriggerFlags(L0TPData->l0TriggerFlags);
+	}
 	/*
 	 * Store the global event timestamp taken from the reverence detector
 	 * Store fine time taken from the reference detector (temporary solution)
 	 */
-	l0::MEPFragment* tsFragment = event->getL0SubeventBySourceIDNum(
-			SourceIDManager::TS_SOURCEID_NUM)->getFragment(0);
+	l0::MEPFragment* tsFragment = event->getL0SubeventBySourceIDNum(SourceIDManager::TS_SOURCEID_NUM)->getFragment(0);
 	event->setTimestamp(tsFragment->getTimestamp());
 	///////////////// Temporary Modification to store L0TP reference detector finetime ///////////////////////
-	event->setFinetime(tsFragment->getDataWithMepHeader()->reserved_);
+//	event->setFinetime(tsFragment->getDataWithMepHeader()->reserved_);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 	/*
 	 * Process Level 1 trigger with all options: reduction, downscaling, bypassing
 	 */
 //	printf("EventBuilder.cpp: l0TriggerTypeWord %x\n", (uint)l0TriggerTypeWord);
-	uint_fast8_t l1TriggerTypeWord = L1TriggerProcessor::compute(event);
+	uint_fast8_t l1TriggerTypeWord = L1TriggerProcessor::compute(event, strawAlgo_);
 //	printf("EventBuilder.cpp: l1TriggerTypeWord %x\n", (uint)l1TriggerTypeWord);
 	/*
 	 * Given the l1TriggerTypeWord you can now count separately the bitset!
@@ -101,11 +122,16 @@ void EventBuilder::processL1(Event* event) {
 	 * bit 7 = autoPass/Flag event
 	 */
 
-	if(l1TriggerTypeWord & 0x1) L1AcceptedEvents_.fetch_add(1, std::memory_order_relaxed);
-	if(l1TriggerTypeWord & TRIGGER_L1_ALLDISABLED) L1AllAlgoDisabledEvents_.fetch_add(1, std::memory_order_relaxed);
-	if(l1TriggerTypeWord & TRIGGER_L1_BYPASS) L1BypassedEvents_.fetch_add(1, std::memory_order_relaxed);
-	if(l1TriggerTypeWord & TRIGGER_L1_FLAGALGO) L1FlaggedAlgoProcessedEvents_.fetch_add(1, std::memory_order_relaxed);
-	if(l1TriggerTypeWord & TRIGGER_L1_AUTOPASS) L1AutoPassFlagEvents_.fetch_add(1, std::memory_order_relaxed);
+	if (l1TriggerTypeWord & 0x1)
+		L1AcceptedEvents_.fetch_add(1, std::memory_order_relaxed);
+	if (l1TriggerTypeWord & TRIGGER_L1_ALLDISABLED)
+		L1AllAlgoDisabledEvents_.fetch_add(1, std::memory_order_relaxed);
+	if (l1TriggerTypeWord & TRIGGER_L1_BYPASS)
+		L1BypassedEvents_.fetch_add(1, std::memory_order_relaxed);
+	if (l1TriggerTypeWord & TRIGGER_L1_FLAGALGO)
+		L1FlaggedAlgoProcessedEvents_.fetch_add(1, std::memory_order_relaxed);
+	if (l1TriggerTypeWord & TRIGGER_L1_AUTOPASS)
+		L1AutoPassFlagEvents_.fetch_add(1, std::memory_order_relaxed);
 
 	uint_fast16_t L0L1Trigger(l0TriggerTypeWord | l1TriggerTypeWord << 8);
 //	printf("EventBuilder.cpp: L0L1Trigger %x\n", (uint)L0L1Trigger);

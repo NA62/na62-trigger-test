@@ -51,11 +51,9 @@ void writeBurstFile(test::EventBuilder& builder, uint burstID) {
 		std::string outputDir = Options::GetString(OPTION_OUTPUT_DIR);
 
 		DataDumper::generateDirIfNotExists(outputDir);
-		std::string filePath = DataDumper::generateFreeFilePath(fileName,
-				outputDir);
+		std::string filePath = DataDumper::generateFreeFilePath(fileName, outputDir);
 
-		BurstFileWriter writer(filePath, fileName, events.size(),
-				events[0]->getTimestamp(), 0, burstID);
+		BurstFileWriter writer(filePath, fileName, events.size(), events[0]->getTimestamp(), 0, burstID);
 
 		for (auto& event : events) {
 			const EVENT_HDR* data = EventSerializer::SerializeEvent(event);
@@ -90,7 +88,7 @@ int main(int argc, char* argv[]) {
 	L2TriggerProcessor::initialize(HLTConfParams.l2);
 
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
-			OPTION_ACTIVE_SOURCE_IDS);
+	OPTION_ACTIVE_SOURCE_IDS);
 
 	/*
 	 * Extracting input header files from argument list
@@ -103,17 +101,14 @@ int main(int argc, char* argv[]) {
 	}
 
 	if (headerFileExpressions.empty()) {
-		std::cerr
-				<< "No input header files provided. Please use something like following:\n\t"
-				<< argv[0] << " files/*.txt" << std::endl;
+		std::cerr << "No input header files provided. Please use something like following:\n\t" << argv[0] << " files/*.txt" << std::endl;
 		return 1;
 	}
 
 	/*
 	 * Read all header files
 	 */
-	std::cout << "Reading " << headerFileExpressions.size()
-			<< " header files: ";
+	std::cout << "Reading " << headerFileExpressions.size() << " header files: ";
 	for (auto& headerFile : headerFileExpressions) {
 		std::cout << headerFile;
 		if (&headerFile != &*--headerFileExpressions.end())
@@ -121,8 +116,7 @@ int main(int argc, char* argv[]) {
 	}
 	std::cout << std::endl;
 
-	std::vector<HeaderData> headers = FileReader::getActiveHeaderData(sourceIDs,
-			headerFileExpressions);
+	std::vector<HeaderData> headers = FileReader::getActiveHeaderData(sourceIDs, headerFileExpressions);
 
 	if (headers.empty()) {
 		std::cout << "Did not find any header file!" << std::endl;
@@ -137,15 +131,11 @@ int main(int argc, char* argv[]) {
 	std::vector<std::pair<int, int>> sourceIDPairsVector;
 	for (HeaderData header : headers) {
 		std::cout << "Found header file for " << header.binaryFile << std::endl;
-		sourceIDPairsVector.push_back(
-				std::move(
-						std::make_pair(header.sourceID,
-								header.numberOfReadOutBoards)));
+		sourceIDPairsVector.push_back(std::move(std::make_pair(header.sourceID, header.numberOfReadOutBoards)));
 	}
 	std::vector<std::pair<int, int>> sourceIDPairsVectorL1 = sourceIDPairsVector;
 //	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID),sourceIDPairsVector, { }, { }, -1);
-	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID),
-			sourceIDPairsVector, sourceIDPairsVectorL1);
+	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID), sourceIDPairsVector, sourceIDPairsVectorL1);
 
 	EventSerializer::initialize();
 
@@ -153,29 +143,38 @@ int main(int argc, char* argv[]) {
 
 	for (int i = 0; i < 1; i++) {
 		for (auto& header : headers) {
-			std::function<void(l0::MEP_HDR*)> finishedMEPCallback = std::bind(
-					&test::EventBuilder::buildMEP, &builder,
+			std::function<void(l0::MEP_HDR*)> finishedMEPCallback = std::bind(&test::EventBuilder::buildMEP, &builder,
 					std::placeholders::_1);
 			FileReader::readDataFromFile(header, finishedMEPCallback);
 		}
 		writeBurstFile(builder, i);
 	}
 
-	LOG_INFO(
-			"Number of L1 Input Events " << L1TriggerProcessor::GetL1InputStats());
-	LOG_INFO(
-			"Number of Accepted L1 Physics Triggers " << (uint) test::EventBuilder::GetL1AcceptedStats());
-	LOG_INFO(
-			"Number of isAllL1AlgoDisable Events " << (uint) test::EventBuilder::GetL1AllAlgoDisabledStats());
-	LOG_INFO(
-			"Number of L1 Bypassed Events " << (uint) test::EventBuilder::GetL1BypassedStats());
-	LOG_INFO(
-			"Number of Flagged L1 Algo processed " << (uint) test::EventBuilder::GetL1FlaggedAlgoProcessedStats());
-	LOG_INFO(
-			"Number of AutoPass/Flag Events " << (uint) test::EventBuilder::GetL1AutoPassFlagStats());
+	LOG_INFO("Global Stats ");
+	LOG_INFO("Number of L1 Input Events " << L1TriggerProcessor::GetL1InputStats());
+	LOG_INFO("Number of Accepted L1 Physics Triggers " << (uint) test::EventBuilder::GetL1AcceptedStats());
+	LOG_INFO("Number of isAllL1AlgoDisable Events " << (uint) test::EventBuilder::GetL1AllAlgoDisabledStats());
+	LOG_INFO("Number of L1 Bypassed Events " << (uint) test::EventBuilder::GetL1BypassedStats());
+	LOG_INFO("Number of Flagged L1 Algo processed " << (uint) test::EventBuilder::GetL1FlaggedAlgoProcessedStats());
+	LOG_INFO("Number of AutoPass/Flag Events " << (uint) test::EventBuilder::GetL1AutoPassFlagStats());
+	LOG_INFO("Trigger Stats ");
+	uint l0MaskID, l1AlgoID;
+
+	for (int iMask = 0; iMask < (uint) L1TriggerProcessor::GetNumberOfEnabledL0Masks(); iMask++) {
+		l0MaskID = (uint) L1TriggerProcessor::GetL0MaskNumToMaskID(iMask);
+		LOG_INFO("Found L0 Mask ID " << l0MaskID);
+		LOG_INFO("Number of L1 Accepted Events per Mask " << l0MaskID << ": " << L1TriggerProcessor::GetL1AcceptedEventsPerL0Mask(l0MaskID));
+		LOG_INFO("Number of Enabled Algos per L1 Mask " << l0MaskID << ": " << L1TriggerProcessor::GetNumberOfEnabledAlgoPerMask(l0MaskID));
+		for (int iAlgo = 0; iAlgo < (uint) L1TriggerProcessor::GetNumberOfEnabledAlgoPerMask(l0MaskID); iAlgo++) {
+			l1AlgoID = (uint) L1TriggerProcessor::GetAlgoNumToAlgoID(iMask, iAlgo);
+			LOG_INFO("Found Algo ID " << l1AlgoID << ": " << L1TriggerProcessor::algoIdToTriggerName(l1AlgoID));
+//			LOG_INFO("Number of L1 Trigger per Mask " << l0MaskID << " per Algo " << L1TriggerProcessor::algoIdToTriggerName(l1AlgoID) << ": " << L1TriggerProcessor::GetEventCountersByL0MaskByAlgoID(l0MaskID,l1AlgoID));
+
+		}
+	}
+
 	std::cout << "#################################" << std::endl;
-	std::cout << "Finished processing all data without any fatal errors!"
-			<< std::endl;
+	std::cout << "Finished processing all data without any fatal errors!" << std::endl;
 
 	return 0;
 }
