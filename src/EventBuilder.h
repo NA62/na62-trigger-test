@@ -14,13 +14,6 @@
 #include <atomic>
 #include <l1/StrawAlgo.h>
 
-#define TRIGGER_L1_ALLDISABLED 0x10
-#define TRIGGER_L2_ALLDISABLED 0x10
-#define TRIGGER_L1_FLAGALGO 0x40
-#define TRIGGER_L2_FLAGALGO 0x40
-#define TRIGGER_L1_AUTOPASS 0x80
-#define TRIGGER_L2_AUTOPASS 0x80
-
 namespace na62 {
 class BurstFileWriter;
 } /* namespace na62 */
@@ -38,11 +31,6 @@ class EventBuilder {
 private:
 	std::vector<Event*> eventPool_;
 	DataContainer originaldata_;
-	static std::atomic<uint64_t> L1AcceptedEvents_;
-	static std::atomic<uint64_t> L1AllAlgoDisabledEvents_;
-	static std::atomic<uint64_t> L1BypassedEvents_;
-	static std::atomic<uint64_t> L1FlaggedAlgoProcessedEvents_;
-	static std::atomic<uint64_t> L1AutoPassFlagEvents_;
 
 	/*
 	 * Processes a single MEPFragment
@@ -64,21 +52,6 @@ public:
 		return eventPool_;
 	}
 
-	static inline uint64_t GetL1AcceptedStats() {
-		return L1AcceptedEvents_;
-	}
-	static inline uint64_t GetL1AllAlgoDisabledStats() {
-		return L1AllAlgoDisabledEvents_;
-	}
-	static inline uint64_t GetL1BypassedStats() {
-		return L1BypassedEvents_;
-	}
-	static inline uint64_t GetL1FlaggedAlgoProcessedStats() {
-		return L1FlaggedAlgoProcessedEvents_;
-	}
-	static inline uint64_t GetL1AutoPassFlagStats() {
-		return L1AutoPassFlagEvents_;
-	}
 private:
 	StrawAlgo strawAlgo_;
 

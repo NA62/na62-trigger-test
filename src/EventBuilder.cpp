@@ -14,6 +14,7 @@
 #include <l0/Subevent.h>
 #include <l1/L1TriggerProcessor.h>
 #include <l2/L2TriggerProcessor.h>
+#include <monitoring/HltStatistics.h>
 #include <sys/types.h>
 #include <cstdint>
 #include <structs/Event.h>
@@ -21,12 +22,6 @@
 
 namespace na62 {
 namespace test {
-
-std::atomic<uint64_t> EventBuilder::L1AcceptedEvents_(0);
-std::atomic<uint64_t> EventBuilder::L1AllAlgoDisabledEvents_(0);
-std::atomic<uint64_t> EventBuilder::L1BypassedEvents_(0);
-std::atomic<uint64_t> EventBuilder::L1FlaggedAlgoProcessedEvents_(0);
-std::atomic<uint64_t> EventBuilder::L1AutoPassFlagEvents_(0);
 
 EventBuilder::EventBuilder() {
 }
@@ -74,11 +69,6 @@ void EventBuilder::processL1(Event* event) {
 	 */
 	const uint_fast8_t l0TriggerTypeWord = event->readTriggerTypeWordAndFineTime();
 
-//	LOG_INFO("Have you got the finetime? " << (uint)event->getFinetime());
-//	LOG_INFO("Have you got the data type? " << (uint)event->getTriggerDataType());
-//	LOG_INFO("Have you got the trigger flags? " << (uint)event->getTriggerFlags());
-//	LOG_INFO("Have you got the trigger word? " << (uint)event->getL0TriggerTypeWord());
-
 	if (SourceIDManager::L0TP_ACTIVE) {
 		l0::MEPFragment* L0TPEvent = (event->getL0TPSubevent())->getFragment(0);
 		L0TpHeader* L0TPData = (L0TpHeader*) L0TPEvent->getPayload();
@@ -110,28 +100,24 @@ void EventBuilder::processL1(Event* event) {
 	/*
 	 * Process Level 1 trigger with all options: reduction, downscaling, bypassing
 	 */
-//	printf("EventBuilder.cpp: l0TriggerTypeWord %x\n", (uint)l0TriggerTypeWord);
 	uint_fast8_t l1TriggerTypeWord = L1TriggerProcessor::compute(event, strawAlgo_);
-//	printf("EventBuilder.cpp: l1TriggerTypeWord %x\n", (uint)l1TriggerTypeWord);
 	/*
 	 * Given the l1TriggerTypeWord you can now count separately the bitset!
 	 * bit 0 = for OR of all algo verdicts
+	 * bit 3 = isWhileTimeout
 	 * bit 4 = isAllAlgoDisable
 	 * bit 5 = isBypassed event
 	 * bit 6 = is at least one algo being processed in flagging
 	 * bit 7 = autoPass/Flag event
 	 */
 
-	if (l1TriggerTypeWord & 0x1)
-		L1AcceptedEvents_.fetch_add(1, std::memory_order_relaxed);
-	if (l1TriggerTypeWord & TRIGGER_L1_ALLDISABLED)
-		L1AllAlgoDisabledEvents_.fetch_add(1, std::memory_order_relaxed);
-	if (l1TriggerTypeWord & TRIGGER_L1_BYPASS)
-		L1BypassedEvents_.fetch_add(1, std::memory_order_relaxed);
-	if (l1TriggerTypeWord & TRIGGER_L1_FLAGALGO)
-		L1FlaggedAlgoProcessedEvents_.fetch_add(1, std::memory_order_relaxed);
-	if (l1TriggerTypeWord & TRIGGER_L1_AUTOPASS)
-		L1AutoPassFlagEvents_.fetch_add(1, std::memory_order_relaxed);
+	// Read L1 info to storage data
+	L1InfoToStorage L1Info = L1TriggerProcessor::getL1Info();
+//	cout << "KTAG Sectors " << (uint) L1Info.getL1KTAGNSectorsL0TP() << endl;
+//	cout << "L0 Trigger Flags " << (uint)event->getTriggerFlags() << endl;
+
+	// STATISTICS
+	HltStatistics::updateL1Statistics(event, l1TriggerTypeWord);
 
 	uint_fast16_t L0L1Trigger(l0TriggerTypeWord | l1TriggerTypeWord << 8);
 //	printf("EventBuilder.cpp: L0L1Trigger %x\n", (uint)L0L1Trigger);
@@ -139,7 +125,7 @@ void EventBuilder::processL1(Event* event) {
 	event->setL1Processed(L0L1Trigger);
 
 	if (l1TriggerTypeWord != 0) {
-//		LOG_INFO<< "Process L2!!!" << ENDL;
+		HltStatistics::sumCounter("L1RequestToCreams", 1); // new way to handle counters
 		processL2(event);
 	} else {
 //		LOG_INFO<< "Free Event!!!" << ENDL;
@@ -149,6 +135,18 @@ void EventBuilder::processL1(Event* event) {
 
 void EventBuilder::processL2(Event* event) {
 	uint_fast8_t l2TriggerTypeWord = L2TriggerProcessor::compute(event);
+
+	/*
+	 * Given the l2TriggerTypeWord you can now count separately the bitset!
+	 * bit 0 = for OR of all algo verdicts
+	 * bit 4 = isAllAlgoDisable
+	 * bit 5 = isBypassed event
+	 * bit 6 = is at least one algo being processed in flagging
+	 * bit 7 = autoPass/Flag event
+	 */
+
+	HltStatistics::updateL2Statistics(event, l2TriggerTypeWord);
+
 	event->setL2Processed(l2TriggerTypeWord);
 
 	if (!l2TriggerTypeWord) {

@@ -18,6 +18,7 @@
 #include <iterator>
 #include <string>
 #include <eventBuilding/SourceIDManager.h>
+#include <monitoring/HltStatistics.h>
 #include <l0/MEP.h>
 #include <algorithm>
 #include <functional>
@@ -87,6 +88,9 @@ int main(int argc, char* argv[]) {
 	L1TriggerProcessor::initialize(HLTConfParams.l1);
 	L2TriggerProcessor::initialize(HLTConfParams.l2);
 
+	int logicalID = 0;
+	HltStatistics::initialize(logicalID);
+
 	std::vector<int> sourceIDs = MyOptions::GetIntList(
 	OPTION_ACTIVE_SOURCE_IDS);
 
@@ -134,7 +138,6 @@ int main(int argc, char* argv[]) {
 		sourceIDPairsVector.push_back(std::move(std::make_pair(header.sourceID, header.numberOfReadOutBoards)));
 	}
 	std::vector<std::pair<int, int>> sourceIDPairsVectorL1 = sourceIDPairsVector;
-//	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID),sourceIDPairsVector, { }, { }, -1);
 	SourceIDManager::Initialize(Options::GetInt(OPTION_TS_SOURCEID), sourceIDPairsVector, sourceIDPairsVectorL1);
 
 	EventSerializer::initialize();
@@ -150,28 +153,46 @@ int main(int argc, char* argv[]) {
 		writeBurstFile(builder, i);
 	}
 
-	LOG_INFO("Global Stats ");
-	LOG_INFO("Number of L1 Input Events " << L1TriggerProcessor::GetL1InputStats());
-	LOG_INFO("Number of Accepted L1 Physics Triggers " << (uint) test::EventBuilder::GetL1AcceptedStats());
-	LOG_INFO("Number of isAllL1AlgoDisable Events " << (uint) test::EventBuilder::GetL1AllAlgoDisabledStats());
-	LOG_INFO("Number of L1 Bypassed Events " << (uint) test::EventBuilder::GetL1BypassedStats());
-	LOG_INFO("Number of Flagged L1 Algo processed " << (uint) test::EventBuilder::GetL1FlaggedAlgoProcessedStats());
-	LOG_INFO("Number of AutoPass/Flag Events " << (uint) test::EventBuilder::GetL1AutoPassFlagStats());
-	LOG_INFO("Trigger Stats ");
-	uint l0MaskID, l1AlgoID;
+	LOG_INFO("HLT STATISTICS from printing methods");
+	HltStatistics::printCounter();
+	HltStatistics::printDimensionalCounter();
 
+	LOG_INFO("HLT STATISTICS from getCounter methods");
+	LOG_INFO("HLT reading Input events: " << HltStatistics::getCounter("L1InputEvents"));
+	LOG_INFO("HLT reading Special events: " << HltStatistics::getCounter("L1SpecialEvents"));
+	LOG_INFO("HLT reading Control events: " << HltStatistics::getCounter("L1ControlEvents"));
+	LOG_INFO("HLT reading Periodics events: " << HltStatistics::getCounter("L1PeriodicsEvents"));
+	LOG_INFO("HLT reading Physics events: " << HltStatistics::getCounter("L1PhysicsEvents"));
+	LOG_INFO("HLT reading Physics events (by multiple masks): " << HltStatistics::getCounter("L1PhysicsEventsByMultipleMasks"));
+	LOG_INFO("HLT reading Request to Creams: " << HltStatistics::getCounter("L1RequestToCreams"));
+	LOG_INFO("HLT reading Output events: " << HltStatistics::getCounter("L1OutputEvents"));
+	LOG_INFO("HLT reading Accepted events: " << HltStatistics::getCounter("L1AcceptedEvents"));
+	LOG_INFO("HLT reading Timeout events: " << HltStatistics::getCounter("L1TimeoutEvents"));
+	LOG_INFO("HLT reading AllDisabled events: " << HltStatistics::getCounter("L1AllDisabledEvents"));
+	LOG_INFO("HLT reading Bypass events: " << HltStatistics::getCounter("L1BypassEvents"));
+	LOG_INFO("HLT reading FlagAlgo events: " << HltStatistics::getCounter("L1FlagAlgoEvents"));
+	LOG_INFO("HLT reading AutoPass events: " << HltStatistics::getCounter("L1AutoPassEvents"));
+
+	uint l0MaskID, l1AlgoID;
+	uint input, output;
 	for (int iMask = 0; iMask < (uint) L1TriggerProcessor::GetNumberOfEnabledL0Masks(); iMask++) {
 		l0MaskID = (uint) L1TriggerProcessor::GetL0MaskNumToMaskID(iMask);
-		LOG_INFO("Found L0 Mask ID " << l0MaskID);
-		LOG_INFO("Number of L1 Accepted Events per Mask " << l0MaskID << ": " << L1TriggerProcessor::GetL1AcceptedEventsPerL0Mask(l0MaskID));
+		input = HltStatistics::getDimensionalCounter("L1InputEventsPerMask",l0MaskID);
+		output = HltStatistics::getDimensionalCounter("L1AcceptedEventsPerMask",l0MaskID);
+		LOG_INFO("HLT reading Input events Per mask " << l0MaskID << ": " << input);
+		LOG_INFO("HLT reading Accepted events Per mask " << l0MaskID << ": " << output);
+		LOG_INFO("Reduction Factor per Mask " << l0MaskID << ": " << (double)((double)input/(double)output));
 		LOG_INFO("Number of Enabled Algos per L1 Mask " << l0MaskID << ": " << L1TriggerProcessor::GetNumberOfEnabledAlgoPerMask(l0MaskID));
 		for (int iAlgo = 0; iAlgo < (uint) L1TriggerProcessor::GetNumberOfEnabledAlgoPerMask(l0MaskID); iAlgo++) {
 			l1AlgoID = (uint) L1TriggerProcessor::GetAlgoNumToAlgoID(iMask, iAlgo);
 			LOG_INFO("Found Algo ID " << l1AlgoID << ": " << L1TriggerProcessor::algoIdToTriggerName(l1AlgoID));
 //			LOG_INFO("Number of L1 Trigger per Mask " << l0MaskID << " per Algo " << L1TriggerProcessor::algoIdToTriggerName(l1AlgoID) << ": " << L1TriggerProcessor::GetEventCountersByL0MaskByAlgoID(l0MaskID,l1AlgoID));
-
 		}
 	}
+
+	LOG_INFO("HLT EOB STATISTICS");
+	LOG_INFO("HLT EOB L1 Data: " << (std::string) HltStatistics::fillL1Eob());
+	LOG_INFO("HLT EOB L2 Data: " << (std::string) HltStatistics::fillL2Eob());
 
 	std::cout << "#################################" << std::endl;
 	std::cout << "Finished processing all data without any fatal errors!" << std::endl;
