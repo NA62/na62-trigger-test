@@ -181,18 +181,18 @@ int main(int argc, char* argv[]) {
 		output = HltStatistics::getDimensionalCounter("L1AcceptedEventsPerMask",l0MaskID);
 		LOG_INFO("HLT reading Input events Per mask " << l0MaskID << ": " << input);
 		LOG_INFO("HLT reading Accepted events Per mask " << l0MaskID << ": " << output);
-		LOG_INFO("Reduction Factor per Mask " << l0MaskID << ": " << (double)((double)input/(double)output));
+		if(output) LOG_INFO("Reduction Factor per Mask " << l0MaskID << ": " << (double)((double)input/(double)output));
 		LOG_INFO("Number of Enabled Algos per L1 Mask " << l0MaskID << ": " << L1TriggerProcessor::GetNumberOfEnabledAlgoPerMask(l0MaskID));
 		for (int iAlgo = 0; iAlgo < (uint) L1TriggerProcessor::GetNumberOfEnabledAlgoPerMask(l0MaskID); iAlgo++) {
 			l1AlgoID = (uint) L1TriggerProcessor::GetAlgoNumToAlgoID(iMask, iAlgo);
 			LOG_INFO("Found Algo ID " << l1AlgoID << ": " << L1TriggerProcessor::algoIdToTriggerName(l1AlgoID));
-//			LOG_INFO("Number of L1 Trigger per Mask " << l0MaskID << " per Algo " << L1TriggerProcessor::algoIdToTriggerName(l1AlgoID) << ": " << L1TriggerProcessor::GetEventCountersByL0MaskByAlgoID(l0MaskID,l1AlgoID));
+			LOG_INFO("Number of L1 Trigger per Mask " << l0MaskID << " per Algo " << L1TriggerProcessor::algoIdToTriggerName(l1AlgoID) << ": " << (uint)L1TriggerProcessor::GetEventCountersByL0MaskByAlgoID(l0MaskID,l1AlgoID));
 		}
 	}
 
 	LOG_INFO("HLT EOB STATISTICS");
-	LOG_INFO("HLT EOB L1 Data: " << (std::string) HltStatistics::fillL1Eob());
-	LOG_INFO("HLT EOB L2 Data: " << (std::string) HltStatistics::fillL2Eob());
+//	LOG_INFO("HLT EOB L1 Data: " << (std::string) HltStatistics::fillL1Eob());
+//	LOG_INFO("HLT EOB L2 Data: " << (std::string) HltStatistics::fillL2Eob());
 
 	std::cout << "#################################" << std::endl;
 	std::cout << "Finished processing all data without any fatal errors!" << std::endl;
